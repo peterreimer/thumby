@@ -1,0 +1,14 @@
+@(message: Thumbnail)
+
+@main("Upload Thumbnail") {
+
+ <form action="/url" method="post">
+  <input name="url" type="url" size="50" maxlength="100000" accept="text/*">
+  <button type="submit"  class="btn btn-default">
+    <span class="glyphicon glyphicon-upload" style="vertical-align:middle"></span> Upload
+  </button>
+  <p class="message">
+  @message
+  </p>
+</form> 
+}
