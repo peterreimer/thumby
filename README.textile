@@ -1,1 +1,28 @@
-thumby is a thumnail generator
+h1. thumby 
+
+A thumbnail generator as web service.
+
+h1. Install
+
+Download activator https://www.playframework.com/download
+Tested with 1.2.12 
+
+Uses Java 1.8
+
+h2. Run
+
+bc. cd thumby
+activator start
+
+p. Go to http://localhost:9000/mythumby
+
+h2. Manual Test
+
+bc. curl -XGET http://localhost:9000/mythumby?url=https://pbs.twimg.com/profile_images/2262780036/jan_128_400x400.jpg&size=200
+
+that's all! Repeating requests will be answered with a cached version using 'url' and 'size' as cache address.
+
+h1. License
+
+GNU AFFERO GENERAL PUBLIC LICENSE 
+Version 3, 19 November 2007
