@@ -54,44 +54,50 @@ public class Application extends MyController {
      */
     public static Promise<Result> getThumbnail(String url, int size) {
 	return Promise.promise(() -> {
-	    if (url == null)
-		return ok(views.html.uploadUrl.render(null));
-	    Thumbnail result = (Thumbnail) Cache.get(url + size);
-	    if (result == null) {
-		return uploadUrl(url, size);
+	    try {
+		if (url == null)
+		    return ok(views.html.uploadUrl.render(null));
+		Thumbnail result = (Thumbnail) Cache.get(url + size);
+		if (result == null) {
+		    result = uploadUrl(url, size);
+		    Cache.set(url + size, result);
+		}
+		response().setHeader("Content-Disposition", result.name);
+		response().setHeader("Content-Type", "image/jpeg");
+		return ok(result.thumb);
+	    } catch (Exception e) {
+		response().setHeader("Content-Type", "text/plain");
+		return internalServerError(e.toString());
 	    }
-	    return ok(result.thumb);
 	});
     }
 
-    private static Result uploadUrl(String urlAddress, int size) {
+    private static Thumbnail uploadUrl(String urlAddress, int size)
+	    throws Exception {
+	HttpURLConnection connection = null;
 	try {
 	    URL url = new URL(urlAddress);
-	    HttpURLConnection connection = (HttpURLConnection) url
-		    .openConnection();
+	    connection = (HttpURLConnection) url.openConnection();
 	    connection.setRequestMethod("GET");
 	    connection.connect();
 	    String contentType = connection.getContentType();
 	    Thumbnail thumbnail = createThumbnail(connection.getInputStream(),
-		    MediaType.parse(contentType), size);
-	    Cache.set(urlAddress + size, thumbnail);
-	    response().setHeader("Content-Disposition", url.getPath());
-	    response().setHeader("Content-Type", "image/jpeg");
-	    return ok(thumbnail.thumb);
-	} catch (Exception e) {
-	    return internalServerError(e.toString());
+		    MediaType.parse(contentType), size, url);
+	    return thumbnail;
+	} finally {
+	    if (connection != null)
+		connection.disconnect();
 	}
     }
 
     private static Thumbnail createThumbnail(InputStream in,
-	    MediaType contentType, int size) {
+	    MediaType contentType, int size, URL url) {
 	Thumbnail result = new Thumbnail();
 	result.id = UUID.randomUUID().toString();
 	result.thumb = ThumbnailGenerator
 		.createThumbnail(in, contentType, size);
-	result.url = "/" + result.id;
+	result.name = url.getPath();
 	result.originalContentType = contentType.toString();
-	Cache.set(result.id, result);
 	return result;
     }
 }

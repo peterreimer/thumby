@@ -34,7 +34,7 @@ public class Thumbnail {
     /**
      * url to access
      */
-    public String url;
+    public String name;
     /**
      * the actual thumbnail
      */
