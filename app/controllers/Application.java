@@ -19,19 +19,14 @@ package controllers;
 
 import helper.ThumbnailGenerator;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Map;
 import java.util.UUID;
 
 import models.Thumbnail;
 import play.cache.Cache;
 import play.libs.F.Promise;
-import play.mvc.Http.MultipartFormData;
-import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 
 import com.google.common.net.MediaType;
@@ -41,59 +36,6 @@ import com.google.common.net.MediaType;
  *
  */
 public class Application extends MyController {
-
-    /**
-     * @return the start page
-     */
-    public static Promise<Result> index() {
-	return Promise.promise(() -> {
-	    return ok(views.html.index.render(null));
-	});
-    }
-
-    /**
-     * @return a simple multipart form for file uploading
-     */
-    public static Promise<Result> uploadFileForm() {
-	return Promise.promise(() -> {
-	    return ok(views.html.uploadFile.render(null));
-	});
-    }
-
-    /**
-     * @param size
-     *            the width of the target thumbnail. Defaults to 150px when
-     *            called over HTTP.
-     * @return supports "application/html","application/json", defaults to
-     *         image/jpeg
-     */
-    public static Promise<Result> uploadFile(int size) {
-	return Promise.promise(() -> {
-	    MultipartFormData body = request().body().asMultipartFormData();
-	    FilePart picture = body.getFile("file");
-	    if (picture != null) {
-
-		/*
-		 * TODO use this name for delivery String fileName =
-		 * picture.getFilename();
-		 */
-		MediaType type = MediaType.parse(picture.getContentType());
-		File file = picture.getFile();
-		Thumbnail thumbnail = createThumbnail(file, type, size);
-		if (request().accepts("application/html"))
-		    return ok(views.html.thumbnail.render(thumbnail));
-
-		if (request().accepts("application/json"))
-		    return getJsonResult(thumbnail);
-
-		return getThumbnailAsResult(thumbnail.id);
-	    } else {
-		flash("error", "Missing file");
-		return redirect(routes.Application.index());
-	    }
-	});
-    }
-
     /**
      * @return a form to post a url parameter to the uploadUrl endpoint
      */
@@ -104,52 +46,40 @@ public class Application extends MyController {
     }
 
     /**
-     * Must have a form encoded body with 'url=some-url-encoded-url' parameter
-     * set.
-     * 
+     * @param url
+     *            a url encoded string of a valid url
      * @param size
-     *            the width of the target thumbnail. Defaults to 150px when
-     *            called over HTTP.
-     * @return supports "application/html","application/json", defaults to
-     *         image/jpeg
+     *            the size of the thumbnail
+     * @return image/jpeg
      */
-    public static Promise<Result> uploadUrl(int size) {
+    public static Promise<Result> getThumbnail(String url, int size) {
 	return Promise.promise(() -> {
-	    try {
-		Map<String, String[]> reqmap = request().body()
-			.asFormUrlEncoded();
-		String urlAddress = reqmap.get("url")[0];
-		play.Logger.debug(urlAddress);
-		URL url = new URL(urlAddress);
-		HttpURLConnection connection = (HttpURLConnection) url
-			.openConnection();
-		connection.setRequestMethod("GET");
-		connection.connect();
-		String contentType = connection.getContentType();
-		Thumbnail thumbnail = createThumbnail(
-			connection.getInputStream(),
-			MediaType.parse(contentType), size);
-
-		if (request().accepts("application/html"))
-		    return ok(views.html.thumbnail.render(thumbnail));
-
-		if (request().accepts("application/json"))
-		    return getJsonResult(thumbnail);
-
-		return getThumbnailAsResult(thumbnail.id);
-
-	    } catch (Exception e) {
-		throw new RuntimeException(e);
+	    if (url == null)
+		return ok(views.html.uploadUrl.render(null));
+	    Thumbnail result = (Thumbnail) Cache.get(url + size);
+	    if (result == null) {
+		return uploadUrl(url, size);
 	    }
+	    return ok(result.thumb);
 	});
     }
 
-    private static Thumbnail createThumbnail(File file, MediaType contentType,
-	    int size) {
-	try (InputStream in = new FileInputStream(file)) {
-	    return createThumbnail(in, contentType, size);
+    private static Result uploadUrl(String urlAddress, int size) {
+	try {
+	    URL url = new URL(urlAddress);
+	    HttpURLConnection connection = (HttpURLConnection) url
+		    .openConnection();
+	    connection.setRequestMethod("GET");
+	    connection.connect();
+	    String contentType = connection.getContentType();
+	    Thumbnail thumbnail = createThumbnail(connection.getInputStream(),
+		    MediaType.parse(contentType), size);
+	    Cache.set(urlAddress + size, thumbnail);
+	    response().setHeader("Content-Disposition", url.getPath());
+	    response().setHeader("Content-Type", "image/jpeg");
+	    return ok(thumbnail.thumb);
 	} catch (Exception e) {
-	    throw new RuntimeException(e);
+	    return internalServerError(e.toString());
 	}
     }
 
@@ -164,30 +94,4 @@ public class Application extends MyController {
 	Cache.set(result.id, result);
 	return result;
     }
-
-    /**
-     * @param id
-     *            a cache id
-     * @return a promise to the raw thumb
-     */
-    public static Promise<Result> getThumbnail(String id) {
-	return Promise.promise(() -> {
-	    return getThumbnailAsResult(id);
-	});
-    }
-
-    /**
-     * @param id
-     *            cache id
-     * @return the raw thumbnail
-     */
-    public static Result getThumbnailAsResult(String id) {
-
-	Thumbnail result = (Thumbnail) Cache.get(id);
-	if (result == null)
-	    return status(404, "404 Not Found");
-	return ok(result.thumb);
-
-    }
-
 }

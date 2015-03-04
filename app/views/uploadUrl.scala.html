@@ -1,8 +1,8 @@
 @(message: Thumbnail)
-
+@import play.api.Play.current
 @main("Upload Thumbnail") {
 
- <form action="/url" method="post">
+ <form action="@play.api.Play.configuration.getString("application.context").getOrElse("")" method="GET">
   <input name="url" type="url" size="50" maxlength="100000" accept="text/*">
   <button type="submit"  class="btn btn-default">
     <span class="glyphicon glyphicon-upload" style="vertical-align:middle"></span> Upload

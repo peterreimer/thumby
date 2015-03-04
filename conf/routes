@@ -1,12 +1,8 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-GET     /                           controllers.Application.index()
-GET     /file                       controllers.Application.uploadFileForm()
-POST    /file                       controllers.Application.uploadFile(size: Int?=150)
-GET     /url                        controllers.Application.registerUrlForm()
-POST    /url                        controllers.Application.uploadUrl(size: Int?=150)
-GET     /:id                        controllers.Application.getThumbnail(id : String)
+
+GET		/						    controllers.Application.getThumbnail(url : String?=null , size : Int?=150)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /public/*file               controllers.Assets.at(path="/public", file)
-GET     /thumbs/*file               controllers.Assets.at(path="/thumbs", file)
