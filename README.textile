@@ -2,6 +2,10 @@ h1. thumby
 
 A thumbnail generator as web service.
 
+Supports
+- pdf
+- still images
+
 h1. Requirements
 
 1. Java 8
