@@ -2,17 +2,20 @@ h1. thumby
 
 A thumbnail generator as web service.
 
-h1. Install
+h1. Requirements
 
-Download activator https://www.playframework.com/download
-Tested with 1.2.12 
+1. Java 8
+2. Typesafe Activator
 
-Uses Java 1.8
+bc.. wget http://downloads.typesafe.com/typesafe-activator/1.3.2/typesafe-activator-1.3.2-minimal.zip
+unzip typesafe-activator-1.3.2-minimal.zip
+mv activator-1.3.2-minimal /opt
 
-h2. Run
+h1. Run
 
-bc. cd thumby
-activator start
+bc.. git clone https://github.com/hbz/thumby
+cd thumby
+/opt/activator-1.3.2-minimal/activator run
 
 p. Go to http://localhost:9000/mythumby
 
@@ -21,6 +24,40 @@ h2. Manual Test
 bc. curl -XGET http://localhost:9000/mythumby?url=https://pbs.twimg.com/profile_images/2262780036/jan_128_400x400.jpg&size=200
 
 that's all! Repeating requests will be answered with a cached version using 'url' and 'size' as cache address.
+
+h1. Install on Ubuntu
+
+bc.. 
+cd thumby
+/opt/activator-1.3.2-minimal/activator dist
+cp target/universal/thumby-0.1.0-SNAPSHOT.zip  /tmp
+cd /tmp
+unzip thumby-0.1.0-SNAPSHOT.zip
+mv thumby-0.1.0-SNAPSHOT /opt/thumby
+
+p. edit /opt/thumby/conf/application.conf
+
+bc.. http.port=9000
+http.path="/mythumby"
+application.context="/mythumby"
+
+p. edit startscript
+
+bc.. sudo cp thumby/install/thumby.tmpl /etc/init.d
+sudo editor /etc/init.d/thumby
+
+p. set the following vars
+
+bc.. JAVA_HOME=/opt/java
+HOME="/opt/thumby"
+USER="user to run thumby"
+GROUP="user to run thumby"
+SECRET=`uuidgen` # generate a secret
+
+p. include into system start and shutdown
+
+bc.. sudo update-rc.d thumby defaults 99 20
+
 
 h1. License
 
