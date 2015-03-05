@@ -11,13 +11,15 @@ h1. Requirements
 1. Java 8
 2. Typesafe Activator
 
-bc.. wget http://downloads.typesafe.com/typesafe-activator/1.3.2/typesafe-activator-1.3.2-minimal.zip
+bc.. cd /tmp
+wget http://downloads.typesafe.com/typesafe-activator/1.3.2/typesafe-activator-1.3.2-minimal.zip
 unzip typesafe-activator-1.3.2-minimal.zip
-mv activator-1.3.2-minimal /opt
+sudo mv activator-1.3.2-minimal /opt
 
 h1. Run
 
-bc.. git clone https://github.com/hbz/thumby
+bc.. cd /tmp
+git clone https://github.com/hbz/thumby
 cd thumby
 /opt/activator-1.3.2-minimal/activator run
 
@@ -32,7 +34,7 @@ that's all! Repeating requests will be answered with a cached version using 'url
 h1. Install on Ubuntu
 
 bc.. 
-cd thumby
+cd /tmp/thumby
 /opt/activator-1.3.2-minimal/activator dist
 cp target/universal/thumby-0.1.0-SNAPSHOT.zip  /tmp
 cd /tmp
@@ -41,15 +43,15 @@ mv thumby-0.1.0-SNAPSHOT /opt/thumby
 
 p. edit /opt/thumby/conf/application.conf
 
-bc.. http.port=9000
-http.path="/mythumby"
+bc.. http.path="/mythumby"
 application.context="/mythumby"
-#Provide a comma separated list of servers to which thumby has access.  
+#Provide a comma separated list of servers. Thumby will not access files on any other servers. 
 thumby.whitelist="localhost,127.0.0.1"
 
 p. edit startscript
 
-bc.. sudo cp thumby/install/thumby.tmpl /etc/init.d
+bc.. sudo cp /tmp/thumby/install/thumby.tmpl /etc/init.d/thumby
+sudo chmod u+x /etc/init.d/thumby
 sudo editor /etc/init.d/thumby
 
 p. set the following vars
@@ -58,12 +60,16 @@ bc.. JAVA_HOME=/opt/java
 HOME="/opt/thumby"
 USER="user to run thumby"
 GROUP="user to run thumby"
-SECRET=`uuidgen` # generate a secret
+SECRET=`uuidgen` # generate a secret e.g. using uuidgen
+PORT=9000
 
 p. include into system start and shutdown
 
 bc.. sudo update-rc.d thumby defaults 99 20
 
+p. start
+
+bc.. sudo service thumby start
 
 h1. License
 

@@ -35,6 +35,7 @@ HOME="/opt/thumby"
 USER="cpt"
 GROUP="cpt"
 SECRET=`uuidgen`
+PORT=9000
 
 #Variables in accordance to standard play 2.2.x layout 
 DEFAULT=/etc/default/$NAME
@@ -68,7 +69,7 @@ app_start() {
 	set +e
 	start-stop-daemon --start -b -u "$USER" -g "$GROUP" \
 		-c "$USER" -p "$PID" \
-		-x /bin/bash -- -c "$BIN -Dconfig.file=$HOME/conf/application.conf -Dapplication.secret=$SECRET" 
+		-x /bin/bash -- -c "$BIN -Dconfig.file=$HOME/conf/application.conf -Dapplication.secret=$SECRET -Dhttp.port=$PORT"
 	status="$?"
 	set +a -e
 	return $status
