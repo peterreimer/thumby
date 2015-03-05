@@ -46,37 +46,50 @@ public class Application extends MyController {
     }
 
     /**
-     * @param url
+     * @param urlAddress
      *            a url encoded string of a valid url
      * @param size
      *            the size of the thumbnail
      * @return image/jpeg
      */
-    public static Promise<Result> getThumbnail(String url, int size) {
-	return Promise.promise(() -> {
-	    try {
-		if (url == null)
-		    return ok(views.html.uploadUrl.render(null));
-		Thumbnail result = (Thumbnail) Cache.get(url + size);
-		if (result == null) {
-		    result = uploadUrl(url, size);
-		    Cache.set(url + size, result);
-		}
-		response().setHeader("Content-Disposition", result.name);
-		response().setHeader("Content-Type", "image/jpeg");
-		return ok(result.thumb);
-	    } catch (Exception e) {
-		response().setHeader("Content-Type", "text/plain");
-		return internalServerError(e.toString());
-	    }
-	});
+    public static Promise<Result> getThumbnail(String urlAddress, int size) {
+	return Promise
+		.promise(() -> {
+		    try {
+			if (urlAddress == null || urlAddress.isEmpty())
+			    return ok(views.html.uploadUrl.render(null));
+			URL url = new URL(urlAddress);
+			if (!isWhitelisted(url.getHost()))
+			    return status(403,
+				    "thumby is not allowed to access this url!");
+			Thumbnail result = (Thumbnail) Cache.get(url.toString()
+				+ size);
+			if (result == null) {
+			    result = uploadUrl(url, size);
+			    Cache.set(url.toString() + size, result);
+			}
+			response()
+				.setHeader("Content-Disposition", result.name);
+			response().setHeader("Content-Type", "image/jpeg");
+			return ok(result.thumb);
+		    } catch (Exception e) {
+			response().setHeader("Content-Type", "text/plain");
+			return internalServerError(e.toString());
+		    }
+		});
     }
 
-    private static Thumbnail uploadUrl(String urlAddress, int size)
-	    throws Exception {
+    private static boolean isWhitelisted(String host) {
+	for (String w : whitelist) {
+	    if (w.equals(host))
+		return true;
+	}
+	return false;
+    }
+
+    private static Thumbnail uploadUrl(URL url, int size) throws Exception {
 	HttpURLConnection connection = null;
 	try {
-	    URL url = new URL(urlAddress);
 	    connection = (HttpURLConnection) url.openConnection();
 	    connection.setRequestMethod("GET");
 	    connection.connect();

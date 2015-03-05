@@ -44,6 +44,8 @@ p. edit /opt/thumby/conf/application.conf
 bc.. http.port=9000
 http.path="/mythumby"
 application.context="/mythumby"
+#Provide a comma separated list of servers to which thumby has access.  
+thumby.whitelist="localhost,127.0.0.1"
 
 p. edit startscript
 

@@ -19,6 +19,7 @@ package controllers;
 
 import java.io.StringWriter;
 
+import play.Play;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -30,6 +31,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class MyController extends Controller {
     protected static ObjectMapper mapper = new ObjectMapper();
+
+    protected static String[] whitelist = Play.application().configuration()
+	    .getString("thumby.whitelist").split(",");
 
     private static void setJsonHeader() {
 	response().setHeader("Access-Control-Allow-Origin", "*");

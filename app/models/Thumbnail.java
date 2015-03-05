@@ -32,7 +32,7 @@ public class Thumbnail {
      */
     public String id;
     /**
-     * url to access
+     * a name
      */
     public String name;
     /**
