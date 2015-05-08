@@ -17,25 +17,19 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package helper;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImagingOpException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-
-import org.apache.pdfbox.pdfviewer.PageDrawer;
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.imgscalr.Scalr;
 
 import com.google.common.io.Files;
 import com.google.common.net.MediaType;
@@ -51,7 +45,6 @@ import com.google.common.net.MediaType;
  *
  */
 public class ThumbnailGenerator {
-    private static final Color TRANSPARENT_WHITE = new Color(255, 255, 255, 0);
 
     /**
      * @param in
@@ -119,52 +112,14 @@ public class ThumbnailGenerator {
 
     private static BufferedImage writeImageFirstPage(PDDocument document,
 	    int imageType, int size) throws IOException {
-	List<?> pages = document.getDocumentCatalog().getAllPages();
-	PDPage page = (PDPage) pages.get(0);
-	BufferedImage image = convertToImage(page, imageType, size);
+	PDDocumentCatalog dc = document.getDocumentCatalog();
+	dc.setPageMode(PDDocumentCatalog.PAGE_MODE_USE_THUMBS);
+	dc.setPageLayout(PDDocumentCatalog.PAGE_LAYOUT_SINGLE_PAGE);
+
+	PDPage page = (PDPage) dc.getAllPages().get(0);
+
+	BufferedImage image = page.convertToImage(imageType, size);
 	return image;
-    }
-
-    /**
-     * 
-     * @param page
-     * @param imageType
-     * @param size
-     * @return
-     * @throws IOException
-     */
-    private static BufferedImage convertToImage(PDPage page, int imageType,
-	    int size) throws IOException {
-	PDRectangle mBox = page.findMediaBox();
-	float widthPt = mBox.getWidth();
-	float heightPt = mBox.getHeight();
-	int widthPx = size;
-	float scaling = size / widthPt;
-	int heightPx = Math.round(heightPt * scaling);
-	Dimension pageDimension = new Dimension((int) widthPt, (int) heightPt);
-
-	BufferedImage retval = new BufferedImage(widthPx, heightPx, imageType);
-	Graphics2D graphics = (Graphics2D) retval.getGraphics();
-	graphics.setBackground(TRANSPARENT_WHITE);
-	graphics.clearRect(0, 0, retval.getWidth(), retval.getHeight());
-	graphics.scale(scaling, scaling);
-	PageDrawer drawer = new PageDrawer();
-	drawer.drawPage(graphics, page, pageDimension);
-	try {
-	    int rotation = page.findRotation();
-	    if ((rotation == 90) || (rotation == 270)) {
-		int w = retval.getWidth();
-		int h = retval.getHeight();
-		BufferedImage rotatedImg = new BufferedImage(w, h,
-			retval.getType());
-		Graphics2D g = rotatedImg.createGraphics();
-		g.rotate(Math.toRadians(rotation), w / 2, h / 2);
-		g.drawImage(retval, null, 0, 0);
-	    }
-	} catch (ImagingOpException e) {
-	    play.Logger.warn("can not rotate", e);
-	}
-	return retval;
     }
 
     static File generateThumbnailFromImage(InputStream in, int size) {
