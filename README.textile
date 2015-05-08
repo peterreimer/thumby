@@ -71,6 +71,23 @@ p. start
 
 bc.. sudo service thumby start
 
+h1. Update
+
+bc.. 
+rm -rf /tmp/thumby
+cd /tmp
+git clone https://github.com/hbz/thumby
+cd /tmp/thumby
+/opt/activator-1.3.2-minimal/activator dist
+cp target/universal/thumby-0.1.0-SNAPSHOT.zip  /tmp
+cd /tmp
+unzip thumby-0.1.0-SNAPSHOT.zip
+cp /opt/thumby/conf/application.conf /tmp/thumby-0.1.0-SNAPSHOT/conf
+sudo service thumby stop
+rm -rf /opt/thumby/*
+mv /tmp/thumby-0.1.0-SNAPSHOT/* /opt/thumby/
+sudo service thumby start
+
 h1. License
 
 GNU AFFERO GENERAL PUBLIC LICENSE 
