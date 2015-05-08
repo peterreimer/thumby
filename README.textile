@@ -40,7 +40,7 @@ p. Go to http://localhost:9000/mythumby
 
 h2. Manual Test
 
-bc. curl -XGET http://localhost:9000/mythumby?url=https://pbs.twimg.com/profile_images/2262780036/jan_128_400x400.jpg&size=200
+bc. curl -XGET "http://localhost:9000/mythumby?url=https://pbs.twimg.com/profile_images/2262780036/jan_128_400x400.jpg&size=200"
 
 that's all! Repeating requests will be answered with a cached version using 'url' and 'size' as cache address.
 
