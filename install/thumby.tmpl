@@ -31,11 +31,15 @@ PATH=/bin:/usr/bin:/sbin:/usr/sbin
 NAME=thumby
 DESC="Thumby thumbnail generator"
 JAVA_HOME=/opt/java
+JAVA_OPTS="-XX:+HeapDumpOnOutOfMemoryError"
 HOME="/opt/thumby"
 USER="cpt"
 GROUP="cpt"
 SECRET=`uuidgen`
 PORT=9000
+
+export JAVA_HOME
+export JAVA_OPTS
 
 #Variables in accordance to standard play 2.2.x layout 
 DEFAULT=/etc/default/$NAME
