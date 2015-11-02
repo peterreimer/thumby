@@ -36,6 +36,9 @@ import com.google.common.net.MediaType;
  *
  */
 public class Application extends MyController {
+
+    static final int CACHE_EXPIRATION = 60 * 60;
+
     /**
      * @return a form to post a url parameter to the uploadUrl endpoint
      */
@@ -66,7 +69,8 @@ public class Application extends MyController {
 				+ size);
 			if (result == null) {
 			    result = uploadUrl(url, size);
-			    Cache.set(url.toString() + size, result);
+			    Cache.set(url.toString() + size, result,
+				    CACHE_EXPIRATION);
 			}
 			response()
 				.setHeader("Content-Disposition", result.name);
