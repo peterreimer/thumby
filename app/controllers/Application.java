@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.UUID;
 
 import models.Thumbnail;
+import play.Play;
 import play.cache.Cache;
 import play.libs.F.Promise;
 import play.mvc.Result;
@@ -43,9 +44,9 @@ public class Application extends MyController {
      * @return a form to post a url parameter to the uploadUrl endpoint
      */
     public static Promise<Result> registerUrlForm() {
-	return Promise.promise(() -> {
-	    return ok(views.html.uploadUrl.render(null));
-	});
+        return Promise.promise(() -> {
+            return ok(views.html.uploadUrl.render(null));
+        });
     }
 
     /**
@@ -56,65 +57,63 @@ public class Application extends MyController {
      * @return image/jpeg
      */
     public static Promise<Result> getThumbnail(String urlAddress, int size) {
-	return Promise
-		.promise(() -> {
-		    try {
-			if (urlAddress == null || urlAddress.isEmpty())
-			    return ok(views.html.uploadUrl.render(null));
-			URL url = new URL(urlAddress);
-			if (!isWhitelisted(url.getHost()))
-			    return status(403,
-				    "thumby is not allowed to access this url!");
-			Thumbnail result = (Thumbnail) Cache.get(url.toString()
-				+ size);
-			if (result == null) {
-			    result = uploadUrl(url, size);
-			    Cache.set(url.toString() + size, result,
-				    CACHE_EXPIRATION);
-			}
-			response()
-				.setHeader("Content-Disposition", result.name);
-			response().setHeader("Content-Type", "image/jpeg");
-			return ok(result.thumb);
-		    } catch (Exception e) {
-			response().setHeader("Content-Type", "text/plain");
-			return internalServerError(e.toString());
-		    }
-		});
+        return Promise.promise(() -> {
+            try {
+                if (urlAddress == null || urlAddress.isEmpty())
+                    return ok(views.html.uploadUrl.render(null));
+                URL url = new URL(urlAddress);
+                if (!isWhitelisted(url.getHost()))
+                    return status(403, "thumby is not allowed to access this url!");
+                Thumbnail result = (Thumbnail) Cache.get(url.toString() + size);
+                if (result == null) {
+                    result = uploadUrl(url, size);
+                    Cache.set(url.toString() + size, result, CACHE_EXPIRATION);
+                }
+                response().setHeader("Content-Disposition", result.name);
+                response().setHeader("Content-Type", "image/jpeg");
+                return ok(result.thumb);
+            } catch (Exception e) {
+                response().setHeader("Content-Type", "text/plain");
+                return internalServerError(e.toString());
+            }
+        });
     }
 
     private static boolean isWhitelisted(String host) {
-	for (String w : whitelist) {
-	    if (w.equals(host))
-		return true;
-	}
-	return false;
+        for (String w : whitelist) {
+            if (w.equals(host))
+                return true;
+        }
+        return false;
     }
 
     private static Thumbnail uploadUrl(URL url, int size) throws Exception {
-	HttpURLConnection connection = null;
-	try {
-	    connection = (HttpURLConnection) url.openConnection();
-	    connection.setRequestMethod("GET");
-	    connection.connect();
-	    String contentType = connection.getContentType();
-	    Thumbnail thumbnail = createThumbnail(connection.getInputStream(),
-		    MediaType.parse(contentType), size, url);
-	    return thumbnail;
-	} finally {
-	    if (connection != null)
-		connection.disconnect();
-	}
+        HttpURLConnection connection = null;
+        String contentType = null;
+        Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
+                MediaType.JPEG, size, url);
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+            contentType = connection.getContentType();
+            thumbnail = createThumbnail(connection.getInputStream(), MediaType.parse(contentType), size, url);
+            return thumbnail;
+        } catch (Exception e) {
+            play.Logger.warn("", e);
+        } finally {
+            if (connection != null)
+                connection.disconnect();
+        }
+        return thumbnail;
     }
 
-    private static Thumbnail createThumbnail(InputStream in,
-	    MediaType contentType, int size, URL url) {
-	Thumbnail result = new Thumbnail();
-	result.id = UUID.randomUUID().toString();
-	result.thumb = ThumbnailGenerator
-		.createThumbnail(in, contentType, size);
-	result.name = url.getPath();
-	result.originalContentType = contentType.toString();
-	return result;
+    private static Thumbnail createThumbnail(InputStream in, MediaType contentType, int size, URL url) {
+        Thumbnail result = new Thumbnail();
+        result.id = UUID.randomUUID().toString();
+        result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size);
+        result.name = url.getPath();
+        result.originalContentType = contentType.toString();
+        return result;
     }
 }

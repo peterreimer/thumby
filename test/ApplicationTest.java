@@ -19,19 +19,18 @@ public class ApplicationTest {
 
     @Test
     public void simpleCheck() {
-	int a = 1 + 1;
-	assertThat(a).isEqualTo(2);
+        int a = 1 + 1;
+        assertThat(a).isEqualTo(2);
     }
 
     @Test
     public void indexTemplateShouldContainTheStringThatIsPassedToIt() {
-	running(fakeApplication(), new Runnable() {
-	    public void run() {
-		Content html = views.html.index.render(new Thumbnail());
-		assertThat(contentType(html)).isEqualTo("text/html");
-		assertThat(contentAsString(html)).contains(
-			"Supports PDF and Images.");
-	    }
-	});
+        running(fakeApplication(), new Runnable() {
+            public void run() {
+                Content html = views.html.index.render(new Thumbnail());
+                assertThat(contentType(html)).isEqualTo("text/html");
+                assertThat(contentAsString(html)).contains("Supports PDF and Images.");
+            }
+        });
     }
 }

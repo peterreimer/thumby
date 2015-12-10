@@ -55,82 +55,78 @@ public class ThumbnailGenerator {
      *            acually the width
      * @return a thumbnail file
      */
-    public static File createThumbnail(InputStream in, MediaType contentType,
-	    int size) {
-	if (contentType.is(MediaType.ANY_IMAGE_TYPE)) {
-	    return generateThumbnailFromImage(in, size);
-	}
-	if (contentType.is(MediaType.PDF)) {
-	    return generateThumbnailFromPdf(in, size);
-	}
-	return null;
+    public static File createThumbnail(InputStream in, MediaType contentType, int size) {
+        if (contentType.is(MediaType.ANY_IMAGE_TYPE)) {
+            return generateThumbnailFromImage(in, size);
+        }
+        if (contentType.is(MediaType.PDF)) {
+            return generateThumbnailFromPdf(in, size);
+        }
+        return null;
     }
 
     private static File generateThumbnailFromPdf(InputStream in, int size) {
-	PDDocument document = null;
-	try {
-	    document = PDDocument.load(in);
-	    BufferedImage tmpImage = writeImageFirstPage(document,
-		    BufferedImage.TYPE_INT_RGB, size);
-	    return createFileFromImage(tmpImage, size);
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	} finally {
+        PDDocument document = null;
+        try {
+            document = PDDocument.load(in);
+            BufferedImage tmpImage = writeImageFirstPage(document, BufferedImage.TYPE_INT_RGB, size);
+            return createFileFromImage(tmpImage, size);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
 
-	    if (document != null) {
-		try {
-		    document.close();
-		} catch (IOException e) {
-		}
-	    }
-	}
+            if (document != null) {
+                try {
+                    document.close();
+                } catch (IOException e) {
+                }
+            }
+        }
 
     }
 
     private static File createFileFromImage(BufferedImage tmpImage, int size) {
-	try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-	    ImageIO.write(tmpImage, "jpeg", os);
-	    if (tmpImage.getWidth() != size) {
-		return createThumbnail(tmpImage, os, size);
-	    }
-	    File outFile = File.createTempFile("data", "pdf");
-	    Files.write(os.toByteArray(), outFile);
-	    return outFile;
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            ImageIO.write(tmpImage, "jpeg", os);
+            if (tmpImage.getWidth() != size) {
+                return createThumbnail(tmpImage, os, size);
+            }
+            File outFile = File.createTempFile("data", "pdf");
+            Files.write(os.toByteArray(), outFile);
+            return outFile;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static File createThumbnail(BufferedImage tmpImage,
-	    ByteArrayOutputStream os, int size) {
-	try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
-	    return generateThumbnailFromImage(is, size);
-	} catch (Exception e) {
-	    throw new RuntimeException(e);
-	}
+    private static File createThumbnail(BufferedImage tmpImage, ByteArrayOutputStream os, int size) {
+        try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
+            return generateThumbnailFromImage(is, size);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private static BufferedImage writeImageFirstPage(PDDocument document,
-	    int imageType, int size) throws IOException {
-	PDDocumentCatalog dc = document.getDocumentCatalog();
-	dc.setPageMode(PDDocumentCatalog.PAGE_MODE_USE_THUMBS);
-	dc.setPageLayout(PDDocumentCatalog.PAGE_LAYOUT_SINGLE_PAGE);
+    private static BufferedImage writeImageFirstPage(PDDocument document, int imageType, int size) throws IOException {
+        PDDocumentCatalog dc = document.getDocumentCatalog();
+        dc.setPageMode(PDDocumentCatalog.PAGE_MODE_USE_THUMBS);
+        dc.setPageLayout(PDDocumentCatalog.PAGE_LAYOUT_SINGLE_PAGE);
 
-	PDPage page = (PDPage) dc.getAllPages().get(0);
+        PDPage page = (PDPage) dc.getAllPages().get(0);
 
-	BufferedImage image = page.convertToImage(imageType, size);
-	return image;
+        BufferedImage image = page.convertToImage(imageType, size);
+        return image;
     }
 
-    static File generateThumbnailFromImage(InputStream in, int size) {
-	File output;
-	try {
-	    output = File.createTempFile("data", "img");
-	    BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
-	    ImageIO.write(thumbnail, "jpeg", output);
-	} catch (IOException e) {
-	    throw new RuntimeException(e);
-	}
-	return output;
+    public static File generateThumbnailFromImage(InputStream in, int size) {
+        File output;
+        try {
+            output = File.createTempFile("data", "img");
+            BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
+            ImageIO.write(thumbnail, "jpeg", output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return output;
     }
 }
