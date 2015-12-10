@@ -122,7 +122,7 @@ public class ThumbnailGenerator {
 	return image;
     }
 
-    static File generateThumbnailFromImage(InputStream in, int size) {
+    public static File generateThumbnailFromImage(InputStream in, int size) {
 	File output;
 	try {
 	    output = File.createTempFile("data", "img");
