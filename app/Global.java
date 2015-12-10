@@ -1,3 +1,4 @@
+
 /*Copyright (c) 2015 "hbz"
 
 This file is part of thumby.
@@ -39,43 +40,41 @@ public class Global extends GlobalSettings {
 
     @Override
     public void onStart(Application app) {
-	play.Logger.info("Application has started");
+        play.Logger.info("Application has started");
 
     }
 
     @Override
     public void onStop(Application app) {
-	// Globals.profile.saveMap();
-	play.Logger.info("Application shutdown...");
+        // Globals.profile.saveMap();
+        play.Logger.info("Application shutdown...");
     }
 
     public Promise<SimpleResult> onHandlerNotFound(RequestHeader request) {
-	return Promise.<SimpleResult> pure(notFound("Action not found "
-		+ request.uri()));
+        return Promise.<SimpleResult> pure(notFound("Action not found " + request.uri()));
     }
 
     @SuppressWarnings("rawtypes")
     public Action onRequest(Request request, Method actionMethod) {
-	play.Logger.debug("\n" + request.toString() + "\n\t"
-		+ mapToString(request.headers()) + "\n\t"
-		+ request.body().toString());
-	return super.onRequest(request, actionMethod);
+        play.Logger.debug("\n" + request.toString() + "\n\t" + mapToString(request.headers()) + "\n\t"
+                + request.body().toString());
+        return super.onRequest(request, actionMethod);
     }
 
     private String mapToString(Map<String, String[]> map) {
-	StringBuilder sb = new StringBuilder();
-	Iterator<Entry<String, String[]>> iter = map.entrySet().iterator();
-	while (iter.hasNext()) {
-	    Entry<String, String[]> entry = iter.next();
-	    sb.append(entry.getKey());
-	    sb.append('=').append('"');
-	    sb.append(Arrays.toString(entry.getValue()));
-	    sb.append('"');
-	    if (iter.hasNext()) {
-		sb.append("\n\t'");
-	    }
-	}
-	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        Iterator<Entry<String, String[]>> iter = map.entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<String, String[]> entry = iter.next();
+            sb.append(entry.getKey());
+            sb.append('=').append('"');
+            sb.append(Arrays.toString(entry.getValue()));
+            sb.append('"');
+            if (iter.hasNext()) {
+                sb.append("\n\t'");
+            }
+        }
+        return sb.toString();
 
     }
 }

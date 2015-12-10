@@ -46,14 +46,14 @@ public class Thumbnail {
 
     @Override
     public String toString() {
-	ObjectMapper mapper = new ObjectMapper();
-	StringWriter w = new StringWriter();
-	try {
-	    mapper.writeValue(w, this);
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    return super.toString();
-	}
-	return w.toString();
+        ObjectMapper mapper = new ObjectMapper();
+        StringWriter w = new StringWriter();
+        try {
+            mapper.writeValue(w, this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return super.toString();
+        }
+        return w.toString();
     }
 }

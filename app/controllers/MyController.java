@@ -32,12 +32,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class MyController extends Controller {
     protected static ObjectMapper mapper = new ObjectMapper();
 
-    protected static String[] whitelist = Play.application().configuration()
-	    .getString("thumby.whitelist").split(",");
+    protected static String[] whitelist = Play.application().configuration().getString("thumby.whitelist").split(",");
 
     private static void setJsonHeader() {
-	response().setHeader("Access-Control-Allow-Origin", "*");
-	response().setContentType("application/json");
+        response().setHeader("Access-Control-Allow-Origin", "*");
+        response().setContentType("application/json");
     }
 
     /**
@@ -46,18 +45,18 @@ public class MyController extends Controller {
      * @return json serialization of obj
      */
     public static Result getJsonResult(Object obj) {
-	setJsonHeader();
-	try {
-	    return ok(json(obj));
-	} catch (Exception e) {
-	    return internalServerError("Not able to create response!");
-	}
+        setJsonHeader();
+        try {
+            return ok(json(obj));
+        } catch (Exception e) {
+            return internalServerError("Not able to create response!");
+        }
     }
 
     protected static String json(Object obj) throws Exception {
-	StringWriter w = new StringWriter();
-	mapper.writeValue(w, obj);
-	String result = w.toString();
-	return result;
+        StringWriter w = new StringWriter();
+        mapper.writeValue(w, obj);
+        String result = w.toString();
+        return result;
     }
 }
