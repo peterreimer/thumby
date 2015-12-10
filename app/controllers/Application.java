@@ -112,6 +112,10 @@ public class Application extends MyController {
         Thumbnail result = new Thumbnail();
         result.id = UUID.randomUUID().toString();
         result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size);
+        if(result.thumb==null){
+            result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream("public/images/thumb-error.jpg"), 
+                    MediaType.JPEG, size);
+        }
         result.name = url.getPath();
         result.originalContentType = contentType.toString();
         return result;
