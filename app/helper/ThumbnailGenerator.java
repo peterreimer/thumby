@@ -17,7 +17,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package helper;
 
+import static helper.Globals.*;
 import java.awt.image.BufferedImage;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,7 +49,7 @@ import play.Play;
  *
  */
 public class ThumbnailGenerator {
-
+    
     /**
      * @param in
      *            the actual content to create a thumbnail from
@@ -75,7 +77,7 @@ public class ThumbnailGenerator {
             }
         } catch (Exception e) {
             play.Logger.warn("", e);
-            result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
+            result = generateThumbnailFromImage(Play.application().resourceAsStream(THUMBNAIL_EXCEPTION_PIC),
                     size, "jpeg",name);
         }
         return result;
@@ -86,30 +88,30 @@ public class ThumbnailGenerator {
         try {
 
             if (contentType.is(MediaType.ANY_AUDIO_TYPE)) {
-                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/audio.png"),
+                result = generateThumbnailFromImage(Play.application().resourceAsStream(AUDIO_PIC),
                         size, "png",name);
             } else if (contentType.is(MediaType.ANY_IMAGE_TYPE)) {
-                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/image.png"),
+                result = generateThumbnailFromImage(Play.application().resourceAsStream(IMAGE_PIC),
                         size, "png",name);
             } else if (contentType.is(MediaType.ANY_TEXT_TYPE)) {
-                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/text.png"), size,
+                result = generateThumbnailFromImage(Play.application().resourceAsStream(TEXT_PIC), size,
                         "png",name);
             } else if (contentType.is(MediaType.ANY_VIDEO_TYPE)) {
-                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/video.png"),
+                result = generateThumbnailFromImage(Play.application().resourceAsStream(VIDEO_PIC),
                         size, "png",name);
             } else if (contentType.is(MediaType.ZIP)) {
-                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/zip.png"), size,
+                result = generateThumbnailFromImage(Play.application().resourceAsStream(ZIP_PIC), size,
                         "png",name);
             } else if (contentType.is(MediaType.PDF)) {
-                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/pdf.png"), size,
+                result = generateThumbnailFromImage(Play.application().resourceAsStream(PDF_PIC), size,
                         "png",name);
             } else {
                 result = generateThumbnailFromImage(
-                        Play.application().resourceAsStream("public/images/thumb-error.jpg"), size, "jpeg",name);
+                        Play.application().resourceAsStream(MIMETYPE_NOT_FOUND_PIC), size, "jpeg",name);
             }
         } catch (Exception e) {
             play.Logger.warn("", e);
-            result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
+            result = generateThumbnailFromImage(Play.application().resourceAsStream(EXCEPTION_ON_APPLY_MIMETYPE),
                     size, "jpeg",name);
         }
         return result;

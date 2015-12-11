@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 package controllers;
 
+import static helper.Globals.*;
 import helper.ThumbnailGenerator;
 
 import java.io.InputStream;
@@ -38,6 +39,8 @@ import com.google.common.net.MediaType;
  */
 public class Application extends MyController {
 
+
+    
     static final int CACHE_EXPIRATION = 60 * 60;
 
     /**
@@ -90,7 +93,7 @@ public class Application extends MyController {
     private static Thumbnail uploadUrl(URL url, int size) throws Exception {
         HttpURLConnection connection = null;
         String contentType = null;
-        Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
+        Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC),
                 MediaType.JPEG, size, url.toString());
         try {
             connection = (HttpURLConnection) url.openConnection();
@@ -113,7 +116,7 @@ public class Application extends MyController {
         result.id = UUID.randomUUID().toString();
         result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size,name);
         if(result.thumb==null){
-            result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream("public/images/thumb-error.jpg"), 
+            result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC), 
                     MediaType.JPEG, size,name);
         }
         result.name = name;
