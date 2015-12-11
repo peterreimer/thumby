@@ -55,46 +55,75 @@ public class ThumbnailGenerator {
      *            the MediaType for the content
      * @param size
      *            acually the width
+     * @param name 
      * @return a thumbnail file
      */
-    public static File createThumbnail(InputStream in, MediaType contentType, int size) {
-        if (contentType.is(MediaType.JPEG)) {
-            return generateThumbnailFromImage(in, size,"jpeg");
+    public static File createThumbnail(InputStream in, MediaType contentType, int size, String name) {
+        File result = null;
+        try {
+
+            if (contentType.is(MediaType.JPEG)) {
+                result = generateThumbnailFromImage(in, size, "jpeg",name);
+            } else if (contentType.is(MediaType.PNG)) {
+                result = generateThumbnailFromImage(in, size, "png",name);
+            }else if (contentType.is(MediaType.GIF)) {
+                result = generateThumbnailFromImage(in, size, "gif",name);
+            } else if (contentType.is(MediaType.PDF)) {
+                result = generateThumbnailFromPdf(in, size,name);
+            } else {
+                result = generateMimeTypeImage(contentType, size,name);
+            }
+        } catch (Exception e) {
+            play.Logger.warn("", e);
+            result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
+                    size, "jpeg",name);
         }
-        if (contentType.is(MediaType.PNG)) {
-            return generateThumbnailFromImage(in, size,"png");
-        }
-        if (contentType.is(MediaType.PDF)) {
-            return generateThumbnailFromPdf(in, size);
-        }
-        if(contentType.is(MediaType.ANY_AUDIO_TYPE)){
-            return generateThumbnailFromImage(Play.application().resourceAsStream("public/images/audio.png"), size,"png");
-        }
-        if(contentType.is(MediaType.ANY_IMAGE_TYPE)){
-            return generateThumbnailFromImage(Play.application().resourceAsStream("public/images/image.png"), size,"png");
-        }
-        if(contentType.is(MediaType.ANY_TEXT_TYPE)){
-            return generateThumbnailFromImage(Play.application().resourceAsStream("public/images/text.png"), size,"png"); 
-        }
-        if(contentType.is(MediaType.ANY_VIDEO_TYPE)){
-            return generateThumbnailFromImage(Play.application().resourceAsStream("public/images/video.png"), size,"png");
-        }
-        if(contentType.is(MediaType.ZIP)){
-            return generateThumbnailFromImage(Play.application().resourceAsStream("public/images/zip.png"), size,"png");
-        }
-        return generateThumbnailFromImage(Play.application().resourceAsStream("public/images/thumb-error.jpg"), size,"jpeg");
+        return result;
     }
 
-    private static File generateThumbnailFromPdf(InputStream in, int size) {
+    private static File generateMimeTypeImage(MediaType contentType, int size,String name) {
+        File result = null;
+        try {
+
+            if (contentType.is(MediaType.ANY_AUDIO_TYPE)) {
+                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/audio.png"),
+                        size, "png",name);
+            } else if (contentType.is(MediaType.ANY_IMAGE_TYPE)) {
+                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/image.png"),
+                        size, "png",name);
+            } else if (contentType.is(MediaType.ANY_TEXT_TYPE)) {
+                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/text.png"), size,
+                        "png",name);
+            } else if (contentType.is(MediaType.ANY_VIDEO_TYPE)) {
+                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/video.png"),
+                        size, "png",name);
+            } else if (contentType.is(MediaType.ZIP)) {
+                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/zip.png"), size,
+                        "png",name);
+            } else if (contentType.is(MediaType.PDF)) {
+                result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/pdf.png"), size,
+                        "png",name);
+            } else {
+                result = generateThumbnailFromImage(
+                        Play.application().resourceAsStream("public/images/thumb-error.jpg"), size, "jpeg",name);
+            }
+        } catch (Exception e) {
+            play.Logger.warn("", e);
+            result = generateThumbnailFromImage(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
+                    size, "jpeg",name);
+        }
+        return result;
+    }
+
+    private static File generateThumbnailFromPdf(InputStream in, int size,String name) {
         PDDocument document = null;
         try {
             document = PDDocument.load(in);
             BufferedImage tmpImage = writeImageFirstPage(document, BufferedImage.TYPE_INT_RGB, size);
-            return createFileFromImage(tmpImage, size);
+            return createFileFromImage(tmpImage, size,name);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
-
             if (document != null) {
                 try {
                     document.close();
@@ -105,11 +134,11 @@ public class ThumbnailGenerator {
 
     }
 
-    private static File createFileFromImage(BufferedImage tmpImage, int size) {
+    private static File createFileFromImage(BufferedImage tmpImage, int size,String name) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             ImageIO.write(tmpImage, "jpeg", os);
             if (tmpImage.getWidth() != size) {
-                return createThumbnail(tmpImage, os, size);
+                return createThumbnail(tmpImage, os, size,name);
             }
             File outFile = File.createTempFile("data", "pdf");
             Files.write(os.toByteArray(), outFile);
@@ -119,9 +148,9 @@ public class ThumbnailGenerator {
         }
     }
 
-    private static File createThumbnail(BufferedImage tmpImage, ByteArrayOutputStream os, int size) {
+    private static File createThumbnail(BufferedImage tmpImage, ByteArrayOutputStream os, int size,String name) {
         try (InputStream is = new ByteArrayInputStream(os.toByteArray())) {
-            return generateThumbnailFromImage(is, size,"jpeg");
+            return generateThumbnailFromImage(is, size, "jpeg",name);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -138,10 +167,10 @@ public class ThumbnailGenerator {
         return image;
     }
 
-    public static File generateThumbnailFromImage(InputStream in, int size,String imageType) {
+    public static File generateThumbnailFromImage(InputStream in, int size, String imageType, String name) {
         File output;
         try {
-            output = File.createTempFile("data", "img");
+            output = File.createTempFile(name+"-thumby","test");
             BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
             ImageIO.write(thumbnail, imageType, output);
         } catch (IOException e) {
@@ -149,5 +178,5 @@ public class ThumbnailGenerator {
         }
         return output;
     }
-  
+
 }

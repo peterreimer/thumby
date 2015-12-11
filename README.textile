@@ -1,4 +1,5 @@
-h1. thumby 
+h1. thumby
+!https://travis-ci.org/hbz/thumby.svg?branch=master!:https://travis-ci.org/hbz/thumby
 
 A thumbnail generator as web service.
 

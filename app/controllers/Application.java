@@ -91,13 +91,13 @@ public class Application extends MyController {
         HttpURLConnection connection = null;
         String contentType = null;
         Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream("public/images/thumb-error.jpg"),
-                MediaType.JPEG, size, url);
+                MediaType.JPEG, size, url.toString());
         try {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
             contentType = connection.getContentType();
-            thumbnail = createThumbnail(connection.getInputStream(), MediaType.parse(contentType), size, url);
+            thumbnail = createThumbnail(connection.getInputStream(), MediaType.parse(contentType), size, url.toString());
             return thumbnail;
         } catch (Exception e) {
             play.Logger.warn("", e);
@@ -108,15 +108,15 @@ public class Application extends MyController {
         return thumbnail;
     }
 
-    private static Thumbnail createThumbnail(InputStream in, MediaType contentType, int size, URL url) {
+    public static Thumbnail createThumbnail(InputStream in, MediaType contentType, int size, String name) {
         Thumbnail result = new Thumbnail();
         result.id = UUID.randomUUID().toString();
-        result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size);
+        result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size,name);
         if(result.thumb==null){
             result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream("public/images/thumb-error.jpg"), 
-                    MediaType.JPEG, size);
+                    MediaType.JPEG, size,name);
         }
-        result.name = url.getPath();
+        result.name = name;
         result.originalContentType = contentType.toString();
         return result;
     }
