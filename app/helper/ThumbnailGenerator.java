@@ -78,7 +78,7 @@ public class ThumbnailGenerator {
         } catch (Exception e) {
             play.Logger.warn("", e);
             result = generateThumbnailFromImage(Play.application().resourceAsStream(THUMBNAIL_EXCEPTION_PIC),
-                    size, "jpeg",name);
+                    size, "png",name);
         }
         return result;
     }
@@ -107,12 +107,12 @@ public class ThumbnailGenerator {
                         "png",name);
             } else {
                 result = generateThumbnailFromImage(
-                        Play.application().resourceAsStream(MIMETYPE_NOT_FOUND_PIC), size, "jpeg",name);
+                        Play.application().resourceAsStream(MIMETYPE_NOT_FOUND_PIC), size, "png",name);
             }
         } catch (Exception e) {
             play.Logger.warn("", e);
             result = generateThumbnailFromImage(Play.application().resourceAsStream(EXCEPTION_ON_APPLY_MIMETYPE),
-                    size, "jpeg",name);
+                    size, "png",name);
         }
         return result;
     }

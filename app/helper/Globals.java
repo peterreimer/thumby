@@ -23,7 +23,7 @@ package helper;
  *
  */
 public class Globals {
-    public static final String MIMETYPE_NOT_FOUND_PIC = "public/images/thumb-error.jpg";
+    public static final String MIMETYPE_NOT_FOUND_PIC = "public/images/download.png";
     public static final String THUMBNAIL_EXCEPTION_PIC = MIMETYPE_NOT_FOUND_PIC;
     public static final String EXCEPTION_ON_APPLY_MIMETYPE = MIMETYPE_NOT_FOUND_PIC;
     public static final String CONNECTION_ERROR_PIC = MIMETYPE_NOT_FOUND_PIC;
