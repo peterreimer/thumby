@@ -94,7 +94,7 @@ public class Application extends MyController {
         HttpURLConnection connection = null;
         String contentType = null;
         Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC),
-                MediaType.JPEG, size, url.toString());
+                MediaType.PNG, size, url.toString());
         try {
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
@@ -117,7 +117,7 @@ public class Application extends MyController {
         result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size,name);
         if(result.thumb==null){
             result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC), 
-                    MediaType.JPEG, size,name);
+                    MediaType.PNG, size,name);
         }
         result.name = name;
         result.originalContentType = contentType.toString();
