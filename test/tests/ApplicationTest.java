@@ -26,7 +26,7 @@ import play.mvc.Content;
  */
 public class ApplicationTest {
 
-    private static final String HASH_OF_DEFAULT_DOWNLOAD_PIC = "0fa2e753d9c34bc42064585e96bed4fd";
+    private static final String HASH_OF_DEFAULT_DOWNLOAD_PIC = "41c1c1a29f4126fada057e3c48a0e7f6";
 
     @Test
     public void test_thumbnailer() {
