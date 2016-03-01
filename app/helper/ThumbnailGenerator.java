@@ -93,7 +93,7 @@ public class ThumbnailGenerator {
             } else if (contentType.is(MediaType.ANY_IMAGE_TYPE)) {
                 result = generateThumbnailFromImage(Play.application().resourceAsStream(IMAGE_PIC),
                         size, "png",name);
-            } else if (contentType.is(MediaType.ANY_TEXT_TYPE)) {
+            } else if (contentType.is(MediaType.ANY_TEXT_TYPE) || contentType.is(MediaType.OOXML_DOCUMENT) || contentType.is(MediaType.MICROSOFT_WORD)) {
                 result = generateThumbnailFromImage(Play.application().resourceAsStream(TEXT_PIC), size,
                         "png",name);
             } else if (contentType.is(MediaType.ANY_VIDEO_TYPE)) {

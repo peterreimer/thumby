@@ -39,6 +39,7 @@ public class ApplicationTest {
                  org.junit.Assert.assertEquals("b89f887968762d629c193ae25db02e05",createTestThumbnail("test.pdf", MediaType.PDF));
                  org.junit.Assert.assertEquals("740d6aeff9cd1a6263890cc5e758e332",createTestThumbnail("test.xcf",MediaType.ANY_IMAGE_TYPE));
                  org.junit.Assert.assertEquals("b856b3d7b882f25d0986416ac1aa0102",createTestThumbnail("test.gif",MediaType.GIF));
+                 org.junit.Assert.assertEquals("3a13a2894f025f65beaad657afce7eb6",createTestThumbnail("test.docx",MediaType.OOXML_DOCUMENT));
             }
 
             private String createTestThumbnail(String name, MediaType mtype) {

@@ -112,6 +112,8 @@ public class Application extends MyController {
     }
 
     public static Thumbnail createThumbnail(InputStream in, MediaType contentType, int size, String name) {
+
+        play.Logger.debug("Content-Type: "+contentType);
         Thumbnail result = new Thumbnail();
         result.id = UUID.randomUUID().toString();
         result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size,name);
