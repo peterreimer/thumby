@@ -19,9 +19,12 @@ package controllers;
 
 import static helper.Globals.*;
 import helper.ThumbnailGenerator;
+import helper.TypedInputStream;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
 
@@ -39,8 +42,6 @@ import com.google.common.net.MediaType;
  */
 public class Application extends MyController {
 
-
-    
     static final int CACHE_EXPIRATION = 60 * 60;
 
     /**
@@ -91,35 +92,53 @@ public class Application extends MyController {
     }
 
     private static Thumbnail uploadUrl(URL url, int size) throws Exception {
-        HttpURLConnection connection = null;
-        String contentType = null;
-        Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC),
-                MediaType.PNG, size, url.toString());
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-            contentType = connection.getContentType();
-            thumbnail = createThumbnail(connection.getInputStream(), MediaType.parse(contentType), size, url.toString());
-            return thumbnail;
-        } catch (Exception e) {
-            play.Logger.warn("", e);
-        } finally {
-            if (connection != null)
-                connection.disconnect();
-        }
+        Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
+                size, url.toString());
+        TypedInputStream ts = urlToInputStream(url);
+        thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
         return thumbnail;
+    }
+
+    static TypedInputStream urlToInputStream(URL url) {
+        HttpURLConnection con = null;
+        TypedInputStream ts = new TypedInputStream();
+        try {
+            con = (HttpURLConnection) url.openConnection();
+            con.setInstanceFollowRedirects(false);
+            con.connect();
+            ts.type = con.getContentType();
+            int responseCode = con.getResponseCode();
+            play.Logger.debug("Get a " + responseCode + " from " + url.toExternalForm());
+            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                    || responseCode == 307 || responseCode == 303) {
+                String redirectUrl = con.getHeaderField("Location");
+                try {
+                    URL newUrl = new URL(redirectUrl);
+                    play.Logger.debug("Redirect to Location: " + newUrl);
+                    return urlToInputStream(newUrl);
+                } catch (MalformedURLException e) {
+                    URL newUrl = new URL(url.getProtocol() + "://" + url.getHost() + redirectUrl);
+                    play.Logger.debug("Redirect to Location: " + newUrl);
+                    return urlToInputStream(newUrl);
+                }
+            }
+            ts.in = con.getInputStream();
+            return ts;
+        } catch (IOException e) {
+            play.Logger.debug("", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public static Thumbnail createThumbnail(InputStream in, MediaType contentType, int size, String name) {
 
-        play.Logger.debug("Content-Type: "+contentType);
+        play.Logger.debug("Content-Type: " + contentType);
         Thumbnail result = new Thumbnail();
         result.id = UUID.randomUUID().toString();
-        result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size,name);
-        if(result.thumb==null){
-            result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC), 
-                    MediaType.PNG, size,name);
+        result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size, name);
+        if (result.thumb == null) {
+            result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC),
+                    MediaType.PNG, size, name);
         }
         result.name = name;
         result.originalContentType = contentType.toString();
