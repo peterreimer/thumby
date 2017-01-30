@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package models;
 
 import java.io.File;
+import java.io.Serializable;
 import java.io.StringWriter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Jan Schnasse
  *
  */
-public class Thumbnail {
+public class Thumbnail implements Serializable{
     /**
      * id in cache
      */

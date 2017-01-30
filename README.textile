@@ -33,6 +33,14 @@ editor conf/application.conf
 
 bc.. thumby.whitelist="localhost,127.0.0.1,pbs.twimg.com"
 
+p. To turn on disk caching (default is in memory caching of thumbnails) rename the conf/ehcache.xml.tmpl to conf/ehcache.xml
+
+bc.. mv conf/ehcache.xml.tmpl conf/ehcache.xml
+
+p. Make sure that maxBytesLocalHeap="512M" is not set to a greater value than your current jvm settings (java option -Xmx).
+On a linuy system the provided template will store your thumbnail data under /tmp/thumby.cache/play.data.
+
+
 h2. Run
 
 bc.. /opt/activator-1.3.2-minimal/activator run
@@ -96,7 +104,7 @@ cd /tmp/thumby
 cp target/universal/thumby-0.1.0-SNAPSHOT.zip  /tmp
 cd /tmp
 unzip thumby-0.1.0-SNAPSHOT.zip
-cp /opt/thumby/conf/application.conf /tmp/thumby-0.1.0-SNAPSHOT/conf
+cp /opt/thumby/conf/* /tmp/thumby-0.1.0-SNAPSHOT/conf
 sudo service thumby stop
 rm -rf /opt/thumby/*
 mv /tmp/thumby-0.1.0-SNAPSHOT/* /opt/thumby/

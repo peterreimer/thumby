@@ -17,3 +17,4 @@ dist
 /activator*
 /*~
 conf/thumby
+conf/ehcache.xml
