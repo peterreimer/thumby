@@ -30,18 +30,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
-import play.Play;
-import play.cache.Cache;
-import play.libs.F.Promise;
-import play.mvc.Result;
 
 import com.google.common.net.MediaType;
+
+import play.Play;
+import play.libs.F.Promise;
+import play.mvc.Result;
 
 /**
  * @author Jan Schnasse
  *
  */
 public class Application extends MyController {
+
 
     /**
      * @return a form to post a url parameter to the uploadUrl endpoint

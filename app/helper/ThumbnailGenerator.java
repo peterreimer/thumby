@@ -75,7 +75,7 @@ public class ThumbnailGenerator {
             } else {
                 result = generateMimeTypeImage(contentType, size,name);
             }
-        } catch (Exception e) {
+        } catch (Throwable e ) {
             play.Logger.warn("", e);
             result = generateThumbnailFromImage(Play.application().resourceAsStream(THUMBNAIL_EXCEPTION_PIC),
                     size, "png",name);
@@ -109,7 +109,7 @@ public class ThumbnailGenerator {
                 result = generateThumbnailFromImage(
                         Play.application().resourceAsStream(MIMETYPE_NOT_FOUND_PIC), size, "png",name);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             play.Logger.warn("", e);
             result = generateThumbnailFromImage(Play.application().resourceAsStream(EXCEPTION_ON_APPLY_MIMETYPE),
                     size, "png",name);
@@ -162,9 +162,7 @@ public class ThumbnailGenerator {
         PDDocumentCatalog dc = document.getDocumentCatalog();
         dc.setPageMode(PDDocumentCatalog.PAGE_MODE_USE_THUMBS);
         dc.setPageLayout(PDDocumentCatalog.PAGE_LAYOUT_SINGLE_PAGE);
-
         PDPage page = (PDPage) dc.getAllPages().get(0);
-
         BufferedImage image = page.convertToImage(imageType, size);
         return image;
     }
