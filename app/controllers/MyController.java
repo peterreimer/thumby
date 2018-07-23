@@ -25,6 +25,8 @@ import play.mvc.Result;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import helper.Storage;
+
 /**
  * @author Jan Schnasse
  *
@@ -33,6 +35,7 @@ public class MyController extends Controller {
     protected static ObjectMapper mapper = new ObjectMapper();
 
     protected static String[] whitelist = Play.application().configuration().getString("thumby.whitelist").split(",");
+    protected static Storage storage = new Storage(Play.application().configuration().getString("thumby.storageLocation"));
 
     private static void setJsonHeader() {
         response().setHeader("Access-Control-Allow-Origin", "*");

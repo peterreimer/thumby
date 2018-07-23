@@ -51,7 +51,7 @@ import play.Play;
 public class ThumbnailGenerator {
     
     /**
-     * @param in
+     * @param ts
      *            the actual content to create a thumbnail from
      * @param contentType
      *            the MediaType for the content
@@ -60,22 +60,22 @@ public class ThumbnailGenerator {
      * @param name 
      * @return a thumbnail file
      */
-    public static File createThumbnail(InputStream in, MediaType contentType, int size, String name) {
+    public static File createThumbnail(InputStream ts, MediaType contentType, int size, String name) {
         File result = null;
         try {
 
             if (contentType.is(MediaType.JPEG)) {
-                result = generateThumbnailFromImage(in, size, "jpeg",name);
+                result = generateThumbnailFromImage(ts, size, "jpeg",name);
             } else if (contentType.is(MediaType.PNG)) {
-                result = generateThumbnailFromImage(in, size, "png",name);
+                result = generateThumbnailFromImage(ts, size, "png",name);
             }else if (contentType.is(MediaType.GIF)) {
-                result = generateThumbnailFromImage(in, size, "gif",name);
+                result = generateThumbnailFromImage(ts, size, "gif",name);
             } else if (contentType.is(MediaType.PDF)) {
-                result = generateThumbnailFromPdf(in, size,name);
+                result = generateThumbnailFromPdf(ts, size,name);
             } else {
                 result = generateMimeTypeImage(contentType, size,name);
             }
-        } catch (Exception e) {
+        } catch (Throwable e ) {
             play.Logger.warn("", e);
             result = generateThumbnailFromImage(Play.application().resourceAsStream(THUMBNAIL_EXCEPTION_PIC),
                     size, "png",name);
@@ -109,7 +109,7 @@ public class ThumbnailGenerator {
                 result = generateThumbnailFromImage(
                         Play.application().resourceAsStream(MIMETYPE_NOT_FOUND_PIC), size, "png",name);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             play.Logger.warn("", e);
             result = generateThumbnailFromImage(Play.application().resourceAsStream(EXCEPTION_ON_APPLY_MIMETYPE),
                     size, "png",name);
@@ -162,18 +162,16 @@ public class ThumbnailGenerator {
         PDDocumentCatalog dc = document.getDocumentCatalog();
         dc.setPageMode(PDDocumentCatalog.PAGE_MODE_USE_THUMBS);
         dc.setPageLayout(PDDocumentCatalog.PAGE_LAYOUT_SINGLE_PAGE);
-
         PDPage page = (PDPage) dc.getAllPages().get(0);
-
         BufferedImage image = page.convertToImage(imageType, size);
         return image;
     }
 
-    public static File generateThumbnailFromImage(InputStream in, int size, String imageType, String name) {
+    private static File generateThumbnailFromImage(InputStream ts, int size, String imageType, String name) {
         File output;
         try {
             output = File.createTempFile(name+"-thumby","test");
-            BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
+            BufferedImage thumbnail = Scalr.resize(ImageIO.read(ts), size);
             ImageIO.write(thumbnail, imageType, output);
         } catch (IOException e) {
             throw new RuntimeException(e);
