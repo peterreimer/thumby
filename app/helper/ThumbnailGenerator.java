@@ -51,7 +51,7 @@ import play.Play;
 public class ThumbnailGenerator {
     
     /**
-     * @param in
+     * @param ts
      *            the actual content to create a thumbnail from
      * @param contentType
      *            the MediaType for the content
@@ -60,18 +60,18 @@ public class ThumbnailGenerator {
      * @param name 
      * @return a thumbnail file
      */
-    public static File createThumbnail(InputStream in, MediaType contentType, int size, String name) {
+    public static File createThumbnail(InputStream ts, MediaType contentType, int size, String name) {
         File result = null;
         try {
 
             if (contentType.is(MediaType.JPEG)) {
-                result = generateThumbnailFromImage(in, size, "jpeg",name);
+                result = generateThumbnailFromImage(ts, size, "jpeg",name);
             } else if (contentType.is(MediaType.PNG)) {
-                result = generateThumbnailFromImage(in, size, "png",name);
+                result = generateThumbnailFromImage(ts, size, "png",name);
             }else if (contentType.is(MediaType.GIF)) {
-                result = generateThumbnailFromImage(in, size, "gif",name);
+                result = generateThumbnailFromImage(ts, size, "gif",name);
             } else if (contentType.is(MediaType.PDF)) {
-                result = generateThumbnailFromPdf(in, size,name);
+                result = generateThumbnailFromPdf(ts, size,name);
             } else {
                 result = generateMimeTypeImage(contentType, size,name);
             }
@@ -169,11 +169,11 @@ public class ThumbnailGenerator {
         return image;
     }
 
-    public static File generateThumbnailFromImage(InputStream in, int size, String imageType, String name) {
+    private static File generateThumbnailFromImage(InputStream ts, int size, String imageType, String name) {
         File output;
         try {
             output = File.createTempFile(name+"-thumby","test");
-            BufferedImage thumbnail = Scalr.resize(ImageIO.read(in), size);
+            BufferedImage thumbnail = Scalr.resize(ImageIO.read(ts), size);
             ImageIO.write(thumbnail, imageType, output);
         } catch (IOException e) {
             throw new RuntimeException(e);

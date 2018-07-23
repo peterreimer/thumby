@@ -18,17 +18,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package controllers;
 
 import static helper.Globals.*;
+
+import helper.Storage;
 import helper.ThumbnailGenerator;
 import helper.TypedInputStream;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.UUID;
-
-import models.Thumbnail;
 import play.Play;
 import play.cache.Cache;
 import play.libs.F.Promise;
@@ -41,8 +42,6 @@ import com.google.common.net.MediaType;
  *
  */
 public class Application extends MyController {
-
-    static final int CACHE_EXPIRATION = 60 * 60;
 
     /**
      * @return a form to post a url parameter to the uploadUrl endpoint
@@ -68,14 +67,14 @@ public class Application extends MyController {
                 URL url = new URL(urlAddress);
                 if (!isWhitelisted(url.getHost()))
                     return status(403, "thumby is not allowed to access this url!");
-                Thumbnail result = (Thumbnail) Cache.get(url.toString() + size);
+                File result = (File) storage.get(url.toString() + size);
                 if (result == null) {
                     result = uploadUrl(url, size);
-                    Cache.set(url.toString() + size, result, CACHE_EXPIRATION);
+                    storage.set(url.toString() + size, result);
                 }
-                response().setHeader("Content-Disposition", result.name);
+                response().setHeader("Content-Disposition", result.getName());
                 response().setHeader("Content-Type", "image/jpeg");
-                return ok(result.thumb);
+                return ok(result);
             } catch (Exception e) {
                 response().setHeader("Content-Type", "text/plain");
                 return internalServerError(e.toString());
@@ -91,12 +90,23 @@ public class Application extends MyController {
         return false;
     }
 
-    private static Thumbnail uploadUrl(URL url, int size) throws Exception {
-        Thumbnail thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
+    private static File uploadUrl(URL url, int size) throws Exception {
+        File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
                 size, url.toString());
         TypedInputStream ts = urlToInputStream(url);
-        thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
+        thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type),size, url.toString());
         return thumbnail;
+    }
+
+    public static File createThumbnail(InputStream ts,MediaType contentType, int size, String name) {
+        play.Logger.debug("Content-Type: " + contentType);
+        File out =ThumbnailGenerator.createThumbnail(ts, contentType, size, name);
+        if (out == null) {
+           out = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC),
+                    MediaType.PNG, size, name);
+        }
+ 
+        return out;
     }
 
     static TypedInputStream urlToInputStream(URL url) {
@@ -130,18 +140,5 @@ public class Application extends MyController {
         }
     }
 
-    public static Thumbnail createThumbnail(InputStream in, MediaType contentType, int size, String name) {
-
-        play.Logger.debug("Content-Type: " + contentType);
-        Thumbnail result = new Thumbnail();
-        result.id = UUID.randomUUID().toString();
-        result.thumb = ThumbnailGenerator.createThumbnail(in, contentType, size, name);
-        if (result.thumb == null) {
-            result.thumb = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC),
-                    MediaType.PNG, size, name);
-        }
-        result.name = name;
-        result.originalContentType = contentType.toString();
-        return result;
-    }
+   
 }

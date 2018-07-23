@@ -6,8 +6,6 @@ import static play.test.Helpers.running;
 import java.io.File;
 import java.io.FileInputStream;
 
-import models.Thumbnail;
-
 import org.junit.Test;
 
 import com.google.common.hash.HashCode;
@@ -44,12 +42,12 @@ public class ApplicationTest {
 
             private String createTestThumbnail(String name, MediaType mtype) {
                 try {
-                    Thumbnail t = controllers.Application.createThumbnail(
+                    File t = controllers.Application.createThumbnail(
                             new FileInputStream(
                                     new File(Play.application().resource( name).toURI().getPath())),
                             mtype, 200, name);
-                    HashCode hashcode= Files.hash(t.thumb, Hashing.md5());
-                    play.Logger.info("Create Test Data at " + t.thumb.getAbsolutePath()+" Hashcode: "+hashcode);
+                    HashCode hashcode= Files.hash(t, Hashing.md5());
+                    play.Logger.info("Create Test Data at " + t.getAbsolutePath()+" Hashcode: "+hashcode);
                     return hashcode.toString();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
