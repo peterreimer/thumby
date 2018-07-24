@@ -43,7 +43,6 @@ import play.mvc.Result;
  */
 public class Application extends MyController {
 
-
     /**
      * @return a form to post a url parameter to the uploadUrl endpoint
      */
@@ -92,21 +91,21 @@ public class Application extends MyController {
     }
 
     private static File uploadUrl(URL url, int size) throws Exception {
-        File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
-                size, url.toString());
+        File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG, size,
+                url.toString());
         TypedInputStream ts = urlToInputStream(url);
-        thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type),size, url.toString());
+        thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
         return thumbnail;
     }
 
-    public static File createThumbnail(InputStream ts,MediaType contentType, int size, String name) {
+    public static File createThumbnail(InputStream ts, MediaType contentType, int size, String name) {
         play.Logger.debug("Content-Type: " + contentType);
-        File out =ThumbnailGenerator.createThumbnail(ts, contentType, size, name);
+        File out = ThumbnailGenerator.createThumbnail(ts, contentType, size, name);
         if (out == null) {
-           out = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC),
+            out = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC),
                     MediaType.PNG, size, name);
         }
- 
+
         return out;
     }
 
@@ -139,7 +138,5 @@ public class Application extends MyController {
             play.Logger.debug("", e);
             throw new RuntimeException(e);
         }
-    }
-
-   
+}
 }
