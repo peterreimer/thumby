@@ -1,7 +1,7 @@
 h1. thumby
 !https://travis-ci.org/hbz/thumby.svg?branch=master!:https://travis-ci.org/hbz/thumby
 
-A thumbnail generator as web service.
+Thumby is a "district in germany":https://de.wikipedia.org/wiki/Thumby and  and a thumbnail generator as a web service. Pass an image or a pdf to the service and get a thumbnail image back.  
 
 Supports
 - pdf
@@ -29,16 +29,14 @@ h2. Configure
 
 Provide a list of servers, that thumby is allowed to connect to.
 
-editor conf/application.conf
+bc.. editor conf/application.conf
 
 bc.. thumby.whitelist="localhost,127.0.0.1,pbs.twimg.com"
 
-p. To turn on disk caching (default is in memory caching of thumbnails) rename the conf/ehcache.xml.tmpl to conf/ehcache.xml
 
-bc.. mv conf/ehcache.xml.tmpl conf/ehcache.xml
+Specify a location where thumby stores thumbnails
 
-p. Make sure that maxBytesLocalHeap="512M" is not set to a greater value than your current jvm settings (java option -Xmx).
-On a linuy system the provided template will store your thumbnail data under /tmp/thumby.cache/play.data.
+bc.. thumby.storageLocation="/tmp/thumby-storage"
 
 
 h2. Run
