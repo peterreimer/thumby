@@ -45,7 +45,7 @@ p. Go to http://localhost:9000/tools/thumby
 
 h2. Manual Test
 
-bc. curl -XGET "http://localhost:9000/mythumby?url=https://pbs.twimg.com/profile_images/2262780036/jan_128_400x400.jpg&size=200"
+bc. curl -XGET "http://localhost:9000//tools/thumby?url=https://pbs.twimg.com/profile_images/2262780036/jan_128_400x400.jpg&size=200"
 
 that's all! Repeating requests will be answered with a cached version using 'url' and 'size' as cache address.
 
@@ -61,8 +61,8 @@ mv thumby-0.1.0-SNAPSHOT /opt/thumby
 
 p. edit /opt/thumby/conf/application.conf
 
-bc.. http.path="/mythumby"
-application.context="/mythumby"
+bc.. http.path="/tools/"
+application.context="/tools/thumby"
 #Provide a comma separated list of servers. Thumby will not access files on any other servers. 
 thumby.whitelist="localhost,127.0.0.1"
 
