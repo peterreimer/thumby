@@ -1,7 +1,7 @@
 h1. thumby
 !https://travis-ci.org/hbz/thumby.svg?branch=master!:https://travis-ci.org/hbz/thumby
 
-Thumby is a "district in germany":https://de.wikipedia.org/wiki/Thumby and  and a thumbnail generator as a web service. Pass an image or a pdf to the service and get a thumbnail image back.  
+Thumby is a "district in germany":https://de.wikipedia.org/wiki/Thumby and a thumbnail generator as a web service. Pass an image or a pdf to the service and get a thumbnail image back.  
 
 Supports
 - pdf
@@ -30,11 +30,9 @@ h2. Configure
 Provide a list of servers, that thumby is allowed to connect to.
 
 bc.. editor conf/application.conf
+thumby.whitelist="localhost,127.0.0.1,pbs.twimg.com"
 
-bc.. thumby.whitelist="localhost,127.0.0.1,pbs.twimg.com"
-
-
-Specify a location where thumby stores thumbnails
+p. Specify a location where thumby stores thumbnails
 
 bc.. thumby.storageLocation="/tmp/thumby-storage"
 
