@@ -19,7 +19,6 @@ package controllers;
 
 import static helper.Globals.*;
 
-import helper.Storage;
 import helper.ThumbnailGenerator;
 import helper.TypedInputStream;
 
@@ -29,7 +28,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.UUID;
 
 import com.google.common.net.MediaType;
 
@@ -90,12 +88,27 @@ public class Application extends MyController {
         return false;
     }
 
-    private static File uploadUrl(URL url, int size) throws Exception {
-        File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG, size,
-                url.toString());
-        TypedInputStream ts = urlToInputStream(url);
-        thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
-        return thumbnail;
+    private static File uploadUrl(URL url, int size) {
+        TypedInputStream ts = null;
+        try {
+            File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
+                    size, url.toString());
+            ts = urlToInputStream(url);
+            thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
+            return thumbnail;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (ts != null && ts.in != null) {
+                    ts.in.close();
+                }
+            } catch (Exception e) {
+                play.Logger
+                        .error("Problems to close connection! Maybe restart application to prevent too many open connections.\nCaused when accessing: "
+                                + url);
+            }
+        }
     }
 
     public static File createThumbnail(InputStream ts, MediaType contentType, int size, String name) {
@@ -138,5 +151,5 @@ public class Application extends MyController {
             play.Logger.debug("", e);
             throw new RuntimeException(e);
         }
-}
+    }
 }
