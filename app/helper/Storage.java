@@ -3,26 +3,29 @@ package helper;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.zip.CRC32;
 
 import com.google.common.io.Files;
 
-import play.Play;
 
 public class Storage {
 
     private static String storageLocation = "/tmp/thumby-storage";
-    
-    public Storage(String loc){       
-        if(loc!=null){
-            storageLocation=loc; 
+    private long partitions =100;;
+
+    public Storage(String loc) {
+        if (loc != null) {
+            storageLocation = loc;
         }
-        play.Logger.debug("Store content in: "+storageLocation);
-        new File(storageLocation).mkdirs();
+        play.Logger.debug("Store content in: " + storageLocation);
+        for(int i=0;i<=partitions;i++){
+            new File(storageLocation+File.separator+i).mkdirs(); 
+        }
     }
 
     public File get(String key) {
-        String name = encode(key);
-        File target = new File(storageLocation + File.separator + name);
+        File target = findTarget(key);
+        play.Logger.debug("SEARCH "+target);
         if (target.exists()) {
             return target;
         }
@@ -30,13 +33,29 @@ public class Storage {
     }
 
     public void set(String key, File result) {
-        String name = encode(key);
-        File target = new File(storageLocation + File.separator + name);
+        File target = findTarget(key);
+        play.Logger.debug("CREATE "+target);
         try {
             Files.copy(result, target);
         } catch (IOException e) {
+            play.Logger.debug("",e);
             throw new RuntimeException("", e);
         }
+    } 
+
+    private File findTarget(String key) {
+        String name = encode(key);
+        String dirname = getDirName(name);
+        return new File(storageLocation + File.separator + dirname + File.separator + name);
+    }
+
+    private String getDirName(String name) {
+        CRC32 crc = new CRC32();
+        crc.update(name.getBytes());
+        long num = crc.getValue();
+        long mod = num % partitions;
+        String dirname = "" + mod;
+        return dirname;
     }
 
     private static String encode(String encodeMe) {

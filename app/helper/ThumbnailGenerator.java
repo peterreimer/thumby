@@ -86,7 +86,6 @@ public class ThumbnailGenerator {
     private static File generateMimeTypeImage(MediaType contentType, int size,String name) {
         File result = null;
         try {
-
             if (contentType.is(MediaType.ANY_AUDIO_TYPE)) {
                 result = generateThumbnailFromImage(Play.application().resourceAsStream(AUDIO_PIC),
                         size, "png",name);
@@ -133,7 +132,6 @@ public class ThumbnailGenerator {
                 }
             }
         }
-
     }
 
     private static File createFileFromImage(BufferedImage tmpImage, int size,String name) {
