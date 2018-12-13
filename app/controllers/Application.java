@@ -21,6 +21,7 @@ import static helper.Globals.*;
 
 import helper.ThumbnailGenerator;
 import helper.TypedInputStream;
+import helper.URLUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,7 +94,7 @@ public class Application extends MyController {
         try {
             File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
                     size, url.toString());
-            ts = urlToInputStream(url);
+            ts = URLUtil.urlToInputStream(url);
             thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
             return thumbnail;
         } catch (Exception e) {
@@ -122,34 +123,5 @@ public class Application extends MyController {
         return out;
     }
 
-    static TypedInputStream urlToInputStream(URL url) {
-        HttpURLConnection con = null;
-        TypedInputStream ts = new TypedInputStream();
-        try {
-            con = (HttpURLConnection) url.openConnection();
-            con.setInstanceFollowRedirects(false);
-            con.connect();
-            ts.type = con.getContentType();
-            int responseCode = con.getResponseCode();
-            play.Logger.debug("Get a " + responseCode + " from " + url.toExternalForm());
-            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
-                    || responseCode == 307 || responseCode == 303) {
-                String redirectUrl = con.getHeaderField("Location");
-                try {
-                    URL newUrl = new URL(redirectUrl);
-                    play.Logger.debug("Redirect to Location: " + newUrl);
-                    return urlToInputStream(newUrl);
-                } catch (MalformedURLException e) {
-                    URL newUrl = new URL(url.getProtocol() + "://" + url.getHost() + redirectUrl);
-                    play.Logger.debug("Redirect to Location: " + newUrl);
-                    return urlToInputStream(newUrl);
-                }
-            }
-            ts.in = con.getInputStream();
-            return ts;
-        } catch (IOException e) {
-            play.Logger.debug("", e);
-            throw new RuntimeException(e);
-        }
-    }
+   
 }
