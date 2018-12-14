@@ -35,19 +35,11 @@ public class URLUtil {
     /*
      * This method will only encode an URL if it is not encoded already. It will
      * also replace '+'-encoded spaces with percent encoding.
-     * 
-     * First check if spaces are encoded with '+' signs. If so, replace it by
-     * '%20' because this method is considered to be 'more correct'. So we want
-     * generally use percent encoding. <p/> If the decoded form of the passed
-     * url is equal to the direct string representation of the URL, it does not
-     * harm to encode the URL. There will be no 'double encoding issue'
-     * 
      */
     public static URL saveEncode(URL url) {
         try {
             String passedUrl = url.toExternalForm().replaceAll("\\+", "%20");
-            String decodeUrl = decode(passedUrl);
-            if (passedUrl.equals(decodeUrl)) {
+            if (!isAlreadyEncoded(passedUrl)) {
                 return new URL(encode(passedUrl));
             }
             return url;
@@ -55,6 +47,17 @@ public class URLUtil {
             throw new RuntimeException(e);
         }
     }
+        private static boolean isAlreadyEncoded(String passedUrl) {
+                boolean isEncoded=true;
+
+                if(passedUrl.contains(" ")) {
+                        isEncoded=false;
+                }
+                if(passedUrl.contains("\"")) {
+                        isEncoded=false;
+                }
+                return isEncoded;
+        }
     
     public static String encode(String url) {
         try {
