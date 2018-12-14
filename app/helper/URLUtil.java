@@ -25,6 +25,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+import com.google.common.base.CharMatcher;
+
 /**
  * 
  * @author Jan Schnasse
@@ -37,27 +39,33 @@ public class URLUtil {
      * also replace '+'-encoded spaces with percent encoding.
      */
     public static URL saveEncode(URL url) {
-        try {
-            String passedUrl = url.toExternalForm().replaceAll("\\+", "%20");
-            if (!isAlreadyEncoded(passedUrl)) {
-                return new URL(encode(passedUrl));
+            try {
+                    String passedUrl = url.toExternalForm().replaceAll("\\+", "%20");
+                    if (!isAlreadyEncoded(passedUrl)) {
+                            return new URL(encode(passedUrl));
+                    }
+                    if(!CharMatcher.ASCII.matchesAllOf(passedUrl)) {
+                        return new URL(encode(passedUrl));
+                    }
+                    if(passedUrl.endsWith(":/")) {
+                        return new URL(encode(passedUrl));
+                    }
+                    if(Character.isUpperCase(passedUrl.charAt(0))) {
+                        return new URL(encode(passedUrl));
+                    }
+                    return new URL(encode(passedUrl));
+            } catch (Exception e) {
+                    throw new RuntimeException(e);
             }
-            return url;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
-        private static boolean isAlreadyEncoded(String passedUrl) {
-                boolean isEncoded=true;
 
-                if(passedUrl.contains(" ")) {
-                        isEncoded=false;
-                }
-                if(passedUrl.contains("\"")) {
-                        isEncoded=false;
-                }
-                return isEncoded;
-        }
+    private static boolean isAlreadyEncoded(String passedUrl) {
+            boolean isEncoded = true;
+            if (passedUrl.matches(".*[\\ \"\\<\\>\\{\\}|\\\\^~\\[\\]].*")) {
+                    isEncoded = false;
+            }
+            return isEncoded;
+    }
     
     public static String encode(String url) {
         try {
