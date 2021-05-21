@@ -15,7 +15,7 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+ *
 import static play.mvc.Results.notFound;
 
 import java.lang.reflect.Method;
@@ -23,6 +23,10 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import play.Application;
 import play.GlobalSettings;
@@ -30,33 +34,36 @@ import play.libs.F.Promise;
 import play.mvc.Action;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestHeader;
-import play.mvc.SimpleResult;
+import play.mvc.Result;
 
 /**
  * @author Jan Schnasse
  *
- */
+ *
 public class Global extends GlobalSettings {
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void onStart(Application app) {
-        play.Logger.info("Application has started");
+        logger.info("Application has started");
 
     }
 
     @Override
     public void onStop(Application app) {
         // Globals.profile.saveMap();
-        play.Logger.info("Application shutdown...");
+        logger.info("Application shutdown...");
     }
 
-    public Promise<SimpleResult> onHandlerNotFound(RequestHeader request) {
-        return Promise.<SimpleResult> pure(notFound("Action not found " + request.uri()));
+    public CompletableFuture<Result> onHandlerNotFound(RequestHeader request) {
+        //return CompletableFuture.<Result> push(notFound("Action not found " + request.uri()));
+        return null;
     }
 
     @SuppressWarnings("rawtypes")
     public Action onRequest(Request request, Method actionMethod) {
-        play.Logger.debug("\n" + request.toString() + "\n\t" + mapToString(request.headers()) + "\n\t"
+        logger.debug("\n" + request.toString() + "\n\t" + mapToString(request.headers()) + "\n\t"
                 + request.body().toString());
         return super.onRequest(request, actionMethod);
     }
@@ -77,4 +84,4 @@ public class Global extends GlobalSettings {
         return sb.toString();
 
     }
-}
+}*/

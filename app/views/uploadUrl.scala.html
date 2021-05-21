@@ -1,14 +1,27 @@
-@(file: java.io.File)
-@import play.api.Play.current
-@main("Upload Thumbnail") {
 
- <form action="@play.api.Play.configuration.getString("application.context").getOrElse("")" method="GET">
-  <input name="url" type="url" size="50" maxlength="100000" accept="text/*">
-  <button type="submit"  class="btn btn-default">
-    <span class="glyphicon glyphicon-upload" style="vertical-align:middle"></span> Upload
-  </button>
-  <p class="message">
+@import helper._
+
+@main("Upload ThumbnailEEE") {
+
+
+	<!-- form action="/tools/thumby" method="GET"-->
+	@helper.form(action = routes.Application.getThumbnail()) {
+		<div class="col-xs-5">
+			<div class="form-group">
+	    		<label for="url">URL</label>
+	    		<input type="url" name="url" class="form-control" size="50" id="url">
+	   		</div>
+			<div class="form-group">
+				<label for="size">Groesse (in Pixel)</label>
+			    <input type="number" name="size" class="form-control" size="50" id="size">
+			</div>
+		  
+	  		<button type="submit"  class="btn btn-default">
+	    		<span class="glyphicon glyphicon-upload" style="vertical-align:middle"></span> Generate Thumbnail
+	  		</button>
+	  	</div>
+  		<p class="message">
  
-  </p>
-</form> 
+  		</p>
+	}
 }

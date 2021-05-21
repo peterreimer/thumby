@@ -23,6 +23,8 @@ import java.util.Base64;
 import java.util.zip.CRC32;
 
 import com.google.common.io.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -32,34 +34,39 @@ import com.google.common.io.Files;
 public class Storage {
 
     private static String storageLocation = "/tmp/thumby-storage";
-    private long partitions =100;;
+    private long partitions = 100;
+    // show log messages
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public Storage(String loc) {
-        if (loc != null) {
-            storageLocation = loc;
+    public Storage(String locationPath) {
+        if (locationPath != null) {
+            storageLocation = locationPath;
         }
-        play.Logger.debug("Store content in: " + storageLocation);
-        for(int i=0;i<=partitions;i++){
-            new File(storageLocation+File.separator+i).mkdirs(); 
+        logger.warn("Store content in: " + storageLocation);
+        for(int i = 0; i <= partitions; i++){
+            new File(storageLocation + File.separator + i).mkdirs(); 
         }
     }
 
     public File get(String key) {
         File target = findTarget(key);
-        play.Logger.debug("SEARCH "+target);
+        logger.warn("SEARCH "+ target);
         if (target.exists()) {
             return target;
         }
         return null;
     }
-
+    
+    // Bei set wird das File Object target lokal (innerhalb der Methode) erstellt, warum ist es dann global sichtbar? !kein Rückgabewert
     public void set(String key, File result) {
+        // target ist die neue erstellte Datei im richtigen Verzeichnis und dem richtigen Dateiname: /tmp/thumby-storage / Prüfsumme (CRC) / Encoded URL
         File target = findTarget(key);
-        play.Logger.debug("CREATE "+target);
+        logger.warn("CREATE "+ target);
         try {
+            // Wird nur der Inhalt der Dateien kopiert? Nicht der Name?
             Files.copy(result, target);
         } catch (IOException e) {
-            play.Logger.debug("",e);
+            logger.debug("",e);
             throw new RuntimeException("", e);
         }
     } 
@@ -71,6 +78,9 @@ public class Storage {
     }
 
     private String getDirName(String name) {
+        /* CRC32 ist für Berechnung der Prüfsumme zuständig, um Bitfehler zu vermeiden
+         * In diesem Fall ist die Prüfsumme = den Ordner, indem die Datei hineinkommt
+        */
         CRC32 crc = new CRC32();
         crc.update(name.getBytes());
         long num = crc.getValue();
@@ -79,12 +89,12 @@ public class Storage {
         return dirname;
     }
 
-    private static String encode(String encodeMe) {
-        return Base64.getEncoder().encodeToString(encodeMe.getBytes()).replaceAll("/", "-").replaceAll("\\+", "_");
+    private String encode(String encodeMe) {
+        return Base64.getUrlEncoder().encodeToString(encodeMe.getBytes())/*.replaceAll("/", "-").replaceAll("\\+", "_")*/;
     }
 
-    private static String decode(String decodeMe) {
-        String base64EncodedName = decodeMe.replaceAll("-", "/").replaceAll("_", "+");
-        return new String(Base64.getDecoder().decode(base64EncodedName));
+    private String decode(String decodeMe) {
+        //String base64EncodedName = decodeMe.replaceAll("-", "/").replaceAll("_", "+");
+        return new String(Base64.getUrlDecoder().decode(decodeMe));
     }
 }

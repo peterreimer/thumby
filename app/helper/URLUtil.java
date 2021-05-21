@@ -25,12 +25,17 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Jan Schnasse
  *
  */
 public class URLUtil {
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /*
      * This method will only encode an URL if it is not encoded already. It will
@@ -43,7 +48,7 @@ public class URLUtil {
      * harm to encode the URL. There will be no 'double encoding issue'
      * 
      */
-    public static URL saveEncode(URL url) {
+    public URL saveEncode(URL url) {
         try {
             String passedUrl = url.toExternalForm().replaceAll("\\+", "%20");
             String decodeUrl = decode(passedUrl);
@@ -56,7 +61,7 @@ public class URLUtil {
         }
     }
     
-    public static String encode(String url) {
+    public String encode(String url) {
         try {
             URL u = new URL(url);
             URI uri = new URI(u.getProtocol(), u.getUserInfo(), IDN.toASCII(u.getHost()), u.getPort(), u.getPath(),
@@ -68,7 +73,7 @@ public class URLUtil {
         }
     }
 
-    public static String decode(String url) {
+    public String decode(String url) {
         try {
             URL u = new URL(url);
             String protocol = u.getProtocol();
@@ -94,7 +99,7 @@ public class URLUtil {
         }
     }
 
-    public static TypedInputStream urlToInputStream(URL url) {
+    public TypedInputStream urlToInputStream(URL url) {
         URL encodedUrl = saveEncode(url);
         HttpURLConnection con = null;
         TypedInputStream ts = new TypedInputStream();
@@ -104,24 +109,24 @@ public class URLUtil {
             con.connect();
             ts.type = con.getContentType();
             int responseCode = con.getResponseCode();
-            play.Logger.debug("Get a " + responseCode + " from " + encodedUrl.toExternalForm());
+            logger.debug("Get a " + responseCode + " from " + encodedUrl.toExternalForm());
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == 307 || responseCode == 303) {
                 String redirectUrl = con.getHeaderField("Location");
                 try {
                     URL newUrl = new URL(redirectUrl);
-                    play.Logger.debug("Redirect to Location: " + newUrl);
+                    logger.debug("Redirect to Location: " + newUrl);
                     return urlToInputStream(newUrl);
                 } catch (MalformedURLException e) {
                     URL newUrl = new URL(encodedUrl.getProtocol() + "://" + encodedUrl.getHost() + redirectUrl);
-                    play.Logger.debug("Redirect to Location: " + newUrl);
+                    logger.debug("Redirect to Location: " + newUrl);
                     return urlToInputStream(newUrl);
                 }
             }
             ts.in = con.getInputStream();
             return ts;
         } catch (IOException e) {
-            play.Logger.debug("", e);
+            logger.debug("", e);
             throw new RuntimeException(e);
         }
     }
