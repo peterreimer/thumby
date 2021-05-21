@@ -49,7 +49,7 @@ import play.Environment;
  * 
  * 
  * @author Jan Schnasse
- *
+ * Refactored by Alessio Pellerito
  */
 public class ThumbnailGenerator {
     
@@ -131,7 +131,7 @@ public class ThumbnailGenerator {
         return result;
     }
     
-    /* Für PDF Dateien */
+
     private File generateThumbnailFromPdf(InputStream in, int size, String name) {
         PDDocument document = null;
         try {
@@ -159,7 +159,6 @@ public class ThumbnailGenerator {
         return image;
     }
     
-    /* Dateien noch zu prüfen */
 
     private File createFileFromImage(BufferedImage tmpImage, int size,String name) {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
@@ -182,7 +181,6 @@ public class ThumbnailGenerator {
             throw new RuntimeException(e);
         }
     }
-
 
 
     private File generateThumbnailFromImage(InputStream ts, int size, String imageType, String name) {

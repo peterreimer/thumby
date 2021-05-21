@@ -16,6 +16,6 @@ public class StartUpHandler {
     
     @Inject
     public StartUpHandler(Application app) {
-        logger.info("Application has started");
+        logger.warn("Application has started");
     }
 }

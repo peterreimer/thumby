@@ -29,18 +29,14 @@ import helper.Storage;
 
 /**
  * @author Jan Schnasse
- *
+ * Refactored by Alessio Pellerito
  */
 public class MyController extends Controller {
+    
     protected static ObjectMapper mapper = new ObjectMapper();
 
     protected static String[] whitelist = ConfigFactory.load().getString("thumby.whitelist").split(",");
     protected static Storage storage = new Storage(ConfigFactory.load().getString("thumby.storageLocation"));
-/*
-    private static void setJsonHeader() {
-        response().setHeader("Access-Control-Allow-Origin", "*");
-        response().setContentType("application/json");
-    }
 
     /**
      * @param obj

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author Jan Schnasse
- *
+ * Refactored by Alessio Pellerito
  */
 public class Storage {
 
@@ -57,13 +57,11 @@ public class Storage {
         return null;
     }
     
-    // Bei set wird das File Object target lokal (innerhalb der Methode) erstellt, warum ist es dann global sichtbar? !kein Rückgabewert
     public void set(String key, File result) {
-        // target ist die neue erstellte Datei im richtigen Verzeichnis und dem richtigen Dateiname: /tmp/thumby-storage / Prüfsumme (CRC) / Encoded URL
+
         File target = findTarget(key);
         logger.warn("CREATE "+ target);
         try {
-            // Wird nur der Inhalt der Dateien kopiert? Nicht der Name?
             Files.copy(result, target);
         } catch (IOException e) {
             logger.debug("",e);
@@ -78,9 +76,7 @@ public class Storage {
     }
 
     private String getDirName(String name) {
-        /* CRC32 ist für Berechnung der Prüfsumme zuständig, um Bitfehler zu vermeiden
-         * In diesem Fall ist die Prüfsumme = den Ordner, indem die Datei hineinkommt
-        */
+        /* CRC32 checksum calculation */
         CRC32 crc = new CRC32();
         crc.update(name.getBytes());
         long num = crc.getValue();
@@ -90,11 +86,10 @@ public class Storage {
     }
 
     private String encode(String encodeMe) {
-        return Base64.getUrlEncoder().encodeToString(encodeMe.getBytes())/*.replaceAll("/", "-").replaceAll("\\+", "_")*/;
+        return Base64.getUrlEncoder().encodeToString(encodeMe.getBytes());
     }
 
     private String decode(String decodeMe) {
-        //String base64EncodedName = decodeMe.replaceAll("-", "/").replaceAll("_", "+");
         return new String(Base64.getUrlDecoder().decode(decodeMe));
     }
 }

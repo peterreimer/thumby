@@ -51,7 +51,7 @@ import views.html.*;
 
 /**
  * @author Jan Schnasse
- * Refactoring: Alessio Pellerito
+ * Refactored by Alessio Pellerito
  *
  */
 public class Application extends MyController {
@@ -73,29 +73,6 @@ public class Application extends MyController {
         this.formFactory = factory;
         
     }
-
-    /**
-     * @return a form to post a url parameter to the uploadUrl endpoint
-     */
-
-    // /*Result ist die Response des Servers an den Client
-    //public CompletionStage<Result> registerUrlForm() { //Methodenname ist veränderbar, Programm funktioniert trotzdem
-      //  return CompletableFuture.supplyAsync( (Supplier<Result>) () -> ok(uploadUrl.render(null)) );
-    //}*/
-    
-    
-    
-    public Result inputReader(Http.Request req) {
-        DynamicForm bindedForm = formFactory.form().bindFromRequest(req);
-        
-        String url = bindedForm.get("urlName");
-        logger.warn(url);
-        String size = bindedForm.get("sizeName");
-        logger.warn(size);
-        
-        return ok("You sent: " + url + ", " + size);
-    }
-    
 
     /**
      * @param urlAddress
@@ -120,10 +97,9 @@ public class Application extends MyController {
                     return status(403, "thumby is not allowed to access this url!");
                 }
                 logger.warn("UrlAdress3: " + urlAddress);
-                // In unserem Bildfall kommt sowas zurück /tmp/thumby-storage / 90 (Prüfsumme) / Encoded Url von https://mars.nasa.gov/system/resources/detail_files/25642_PIA24264-Panorama-supplemental-image-wind-carved-rock-web.jpg200
-                File result = (File) storage.get(url.toString() + size);                      // aHR0cHM6Ly9tYXJzLm5hc2EuZ292L3N5c3RlbS9yZXNvdXJjZXMvZGV0YWlsX2ZpbGVzLzI1NjQyX1BJQTI0MjY0LVBhbm9yYW1hLXN1cHBsZW1lbnRhbC1pbWFnZS13aW5kLWNhcnZlZC1yb2NrLXdlYi5qcGcyMDA=
+                
+                File result = (File) storage.get(url.toString() + size);
                 if (result == null) {
-                    // result ist eine temporäre Datei mit dem erstellten thumbnail, dateiformat sieht aus wie folgt: urlDateiName-thumby test
                     result = uploadUrl(url, size);
                     storage.set(url.toString() + size, result);
                 }
@@ -167,8 +143,7 @@ public class Application extends MyController {
         logger.warn("Content-Type: " + contentType);
         File out = thumbnailGen.createThumbnail(ts, contentType, size, name);
         if (out == null) {
-            out = thumbnailGen.createThumbnail(environment.resourceAsStream(THUMBNAIL_NULL_PIC),
-                    MediaType.PNG, size, name);
+            out = thumbnailGen.createThumbnail(environment.resourceAsStream(THUMBNAIL_NULL_PIC), MediaType.PNG, size, name);
         }
 
         return out;
