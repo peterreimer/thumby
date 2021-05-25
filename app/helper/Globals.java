@@ -34,4 +34,6 @@ public class Globals {
     public static final String TEXT_PIC = "public/images/text.png";
     public static final String IMAGE_PIC = "public/images/image.png";
     public static final String AUDIO_PIC = "public/images/audio.png";
+    
+    public static final String THUMBY_PATH = "/tools/thumby";
 }

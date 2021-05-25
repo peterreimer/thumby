@@ -23,32 +23,55 @@ import helper.ThumbnailGenerator;
 import helper.TypedInputStream;
 import helper.URLUtil;
 
+import java.awt.Panel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.net.MediaType;
+import com.google.inject.Inject;
 
-import play.Play;
-import play.libs.F.Promise;
+import play.mvc.Http;
 import play.mvc.Result;
+import play.Environment;
+import play.api.Configuration;
+import play.data.DynamicForm;
+import play.data.Form;
+import play.data.FormFactory;
+import views.html.*;
 
 /**
  * @author Jan Schnasse
+ * Refactored by Alessio Pellerito
  *
  */
 public class Application extends MyController {
-
-    /**
-     * @return a form to post a url parameter to the uploadUrl endpoint
-     */
-    public static Promise<Result> registerUrlForm() {
-        return Promise.promise(() -> {
-            return ok(views.html.uploadUrl.render(null));
-        });
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Environment environment;
+    private final ThumbnailGenerator thumbnailGen;
+    private final URLUtil urlUtil;
+    private final Configuration config;
+    
+    private final FormFactory formFactory;
+    
+    @Inject
+    public Application(Environment e, ThumbnailGenerator thumbnailGen, URLUtil urlUtil, Configuration config, FormFactory factory) {
+        this.environment = e;
+        this.thumbnailGen = thumbnailGen;
+        this.urlUtil = urlUtil;
+        this.config = config;
+        this.formFactory = factory;
+        
     }
 
     /**
@@ -58,30 +81,37 @@ public class Application extends MyController {
      *            the size of the thumbnail
      * @return image/jpeg
      */
-    public static Promise<Result> getThumbnail(String urlAddress, int size) {
-        return Promise.promise(() -> {
+    public CompletionStage<Result> getThumbnail(String urlAddress, int size) {
+        return CompletableFuture.supplyAsync( (Supplier<Result>) () -> {
             try {
-                if (urlAddress == null || urlAddress.isEmpty())
-                    return ok(views.html.uploadUrl.render(null));
+                if (urlAddress == null || urlAddress.isEmpty()) {
+                    logger.warn("UrlAdress1: " + urlAddress);
+                    
+                    return ok(uploadUrl.render());
+                }
+                
                 URL url = new URL(urlAddress);
-                if (!isWhitelisted(url.getHost()))
+                if (!this.isWhitelisted(url.getHost())) {
+                    logger.warn("UrlHost: " + url.getHost());
+                    logger.warn("UrlAdress2: " + urlAddress);
                     return status(403, "thumby is not allowed to access this url!");
+                }
+                logger.warn("UrlAdress3: " + urlAddress);
+                
                 File result = (File) storage.get(url.toString() + size);
                 if (result == null) {
                     result = uploadUrl(url, size);
                     storage.set(url.toString() + size, result);
                 }
-                response().setHeader("Content-Disposition", result.getName());
-                response().setHeader("Content-Type", "image/jpeg");
-                return ok(result);
+                return ok(result).as("image/jpeg").withHeader("Content-Disposition", result.getName());
+                
             } catch (Exception e) {
-                response().setHeader("Content-Type", "text/plain");
-                return internalServerError(e.toString());
+                return internalServerError(e.toString()).as("text/plain");
             }
         });
     }
 
-    private static boolean isWhitelisted(String host) {
+    private boolean isWhitelisted(String host) {
         for (String w : whitelist) {
             if (w.equals(host))
                 return true;
@@ -89,13 +119,12 @@ public class Application extends MyController {
         return false;
     }
 
-    private static File uploadUrl(URL url, int size) {
+    private File uploadUrl(URL url, int size) {
         TypedInputStream ts = null;
         try {
-            File thumbnail = createThumbnail(Play.application().resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG,
-                    size, url.toString());
-            ts = URLUtil.urlToInputStream(url);
-            thumbnail = createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
+            File thumbnail = this.createThumbnail(environment.resourceAsStream(CONNECTION_ERROR_PIC), MediaType.PNG, size, url.toString());
+            ts = urlUtil.urlToInputStream(url);
+            thumbnail = this.createThumbnail(ts.in, MediaType.parse(ts.type), size, url.toString());
             return thumbnail;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -105,19 +134,16 @@ public class Application extends MyController {
                     ts.in.close();
                 }
             } catch (Exception e) {
-                play.Logger
-                        .error("Problems to close connection! Maybe restart application to prevent too many open connections.\nCaused when accessing: "
-                                + url);
+                logger.error("Problems to close connection! Maybe restart application to prevent too many open connections.\nCaused when accessing: " + url);
             }
         }
     }
 
-    public static File createThumbnail(InputStream ts, MediaType contentType, int size, String name) {
-        play.Logger.debug("Content-Type: " + contentType);
-        File out = ThumbnailGenerator.createThumbnail(ts, contentType, size, name);
+    public File createThumbnail(InputStream ts, MediaType contentType, int size, String name) {
+        logger.warn("Content-Type: " + contentType);
+        File out = thumbnailGen.createThumbnail(ts, contentType, size, name);
         if (out == null) {
-            out = ThumbnailGenerator.createThumbnail(Play.application().resourceAsStream(THUMBNAIL_NULL_PIC),
-                    MediaType.PNG, size, name);
+            out = thumbnailGen.createThumbnail(environment.resourceAsStream(THUMBNAIL_NULL_PIC), MediaType.PNG, size, name);
         }
 
         return out;

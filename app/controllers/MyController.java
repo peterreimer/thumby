@@ -19,44 +19,40 @@ package controllers;
 
 import java.io.StringWriter;
 
-import play.Play;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.typesafe.config.ConfigFactory;
 
 import helper.Storage;
 
 /**
  * @author Jan Schnasse
- *
+ * Refactored by Alessio Pellerito
  */
 public class MyController extends Controller {
+    
     protected static ObjectMapper mapper = new ObjectMapper();
 
-    protected static String[] whitelist = Play.application().configuration().getString("thumby.whitelist").split(",");
-    protected static Storage storage = new Storage(Play.application().configuration().getString("thumby.storageLocation"));
-
-    private static void setJsonHeader() {
-        response().setHeader("Access-Control-Allow-Origin", "*");
-        response().setContentType("application/json");
-    }
+    protected static String[] whitelist = ConfigFactory.load().getString("thumby.whitelist").split(",");
+    protected static Storage storage = new Storage(ConfigFactory.load().getString("thumby.storageLocation"));
 
     /**
      * @param obj
      *            an arbitrary object
      * @return json serialization of obj
      */
-    public static Result getJsonResult(Object obj) {
-        setJsonHeader();
+    public Result getJsonResult(Object obj) {
+       // setJsonHeader();
         try {
-            return ok(json(obj));
+            return ok(json(obj)).as("application/json").withHeader("Access-Control-Allow-Origin", "*");
         } catch (Exception e) {
             return internalServerError("Not able to create response!");
         }
     }
 
-    protected static String json(Object obj) throws Exception {
+    protected String json(Object obj) throws Exception {
         StringWriter w = new StringWriter();
         mapper.writeValue(w, obj);
         String result = w.toString();
