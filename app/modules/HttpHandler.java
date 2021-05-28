@@ -15,7 +15,8 @@ import play.mvc.Http.RequestHeader;
 
 public class HttpHandler extends DefaultHttpRequestHandler{
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
 
     public HttpHandler(JavaCompatibleHttpRequestHandler underlying) {
         super(underlying);

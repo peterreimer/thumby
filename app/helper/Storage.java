@@ -36,7 +36,8 @@ public class Storage {
     private static String storageLocation = "/tmp/thumby-storage";
     private long partitions = 100;
     // show log messages
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
 
     public Storage(String locationPath) {
         if (locationPath != null) {

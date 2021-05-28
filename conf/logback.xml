@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- The default logback configuration that Play uses if no other configuration is provided -->
+<configuration debug="true">
+
+  <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%coloredLevel %logger{15} - %message%n%xException{10}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <!-- increases the default queue size -->
+    <queueSize>512</queueSize>
+    <!-- don't discard messages -->
+    <discardingThreshold>0</discardingThreshold>
+    <!-- block when queue is full -->
+    <neverBlock>false</neverBlock>
+    <appender-ref ref="STDOUT" />
+  </appender>
+  
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+	 <file>${application.home:-.}/logs/application.log</file>
+	 <encoder>
+	    <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
+	 </encoder>
+  </appender>
+
+  <logger name="play" level="INFO" />
+
+  <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF" />
+
+  <root level="WARN">
+    <appender-ref ref="FILE" />
+  </root>
+
+  <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+</configuration>
+
+<!--  configuration debug="true">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        < encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default 
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${application.home:-.}/logs/application.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <logger name="play" level="INFO" /> 
+    <logger name="com.gargoylesoftware.htmlunit.javascript" level="WARN"> 
+        <appender-ref ref="FILE" /> 
+    </logger> 
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration-->

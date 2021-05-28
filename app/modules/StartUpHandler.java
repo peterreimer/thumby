@@ -12,7 +12,8 @@ import play.Application;
 @Singleton
 public class StartUpHandler {
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
     
     @Inject
     public StartUpHandler(Application app) {

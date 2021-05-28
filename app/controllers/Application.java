@@ -56,7 +56,8 @@ import views.html.*;
  */
 public class Application extends MyController {
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
     private final Environment environment;
     private final ThumbnailGenerator thumbnailGen;
     private final URLUtil urlUtil;
@@ -86,7 +87,8 @@ public class Application extends MyController {
             try {
                 if (urlAddress == null || urlAddress.isEmpty()) {
                     logger.warn("UrlAdress1: " + urlAddress);
-                    
+                    logger.warn("Whitelist: " + whitelist[0] + " " + whitelist[1] + " " + whitelist[2]);
+                    logger.error("Fake");
                     return ok(uploadUrl.render());
                 }
                 

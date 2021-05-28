@@ -35,7 +35,8 @@ import org.slf4j.LoggerFactory;
  */
 public class URLUtil {
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
 
     /*
      * This method will only encode an URL if it is not encoded already. It will
