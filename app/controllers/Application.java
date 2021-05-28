@@ -86,20 +86,14 @@ public class Application extends MyController {
         return CompletableFuture.supplyAsync( (Supplier<Result>) () -> {
             try {
                 if (urlAddress == null || urlAddress.isEmpty()) {
-                    logger.warn("UrlAdress1: " + urlAddress);
-                    logger.warn("Whitelist: " + whitelist[0] + " " + whitelist[1] + " " + whitelist[2]);
-                    logger.error("Fake");
                     return ok(uploadUrl.render());
                 }
                 
                 URL url = new URL(urlAddress);
                 if (!this.isWhitelisted(url.getHost())) {
                     logger.warn("UrlHost: " + url.getHost());
-                    logger.warn("UrlAdress2: " + urlAddress);
                     return status(403, "thumby is not allowed to access this url!");
-                }
-                logger.warn("UrlAdress3: " + urlAddress);
-                
+                } 
                 File result = (File) storage.get(url.toString() + size);
                 if (result == null) {
                     result = uploadUrl(url, size);
