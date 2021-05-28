@@ -56,7 +56,8 @@ import views.html.*;
  */
 public class Application extends MyController {
     
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
     private final Environment environment;
     private final ThumbnailGenerator thumbnailGen;
     private final URLUtil urlUtil;
@@ -85,19 +86,14 @@ public class Application extends MyController {
         return CompletableFuture.supplyAsync( (Supplier<Result>) () -> {
             try {
                 if (urlAddress == null || urlAddress.isEmpty()) {
-                    logger.warn("UrlAdress1: " + urlAddress);
-                    
                     return ok(uploadUrl.render());
                 }
                 
                 URL url = new URL(urlAddress);
                 if (!this.isWhitelisted(url.getHost())) {
                     logger.warn("UrlHost: " + url.getHost());
-                    logger.warn("UrlAdress2: " + urlAddress);
                     return status(403, "thumby is not allowed to access this url!");
-                }
-                logger.warn("UrlAdress3: " + urlAddress);
-                
+                } 
                 File result = (File) storage.get(url.toString() + size);
                 if (result == null) {
                     result = uploadUrl(url, size);

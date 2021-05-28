@@ -54,7 +54,8 @@ import play.Environment;
 public class ThumbnailGenerator {
     
    
-   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
    private final Environment environment;
    
    @Inject

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
@@ -25,6 +26,8 @@ import play.mvc.Content;
 public class ApplicationTest {
 
     private static final String HASH_OF_DEFAULT_DOWNLOAD_PIC = "41c1c1a29f4126fada057e3c48a0e7f6";
+    private final ch.qos.logback.classic.Logger logger = 
+            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void test_thumbnailer() {
@@ -47,7 +50,7 @@ public class ApplicationTest {
                                     new File(Play.application().resource( name).toURI().getPath())),
                             mtype, 200, name);
                     HashCode hashcode= Files.hash(t, Hashing.md5());
-                    play.Logger.info("Create Test Data at " + t.getAbsolutePath()+" Hashcode: "+hashcode);
+                    logger.info("Create Test Data at " + t.getAbsolutePath()+" Hashcode: "+hashcode);
                     return hashcode.toString();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
